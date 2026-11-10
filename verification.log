@@ -1,0 +1,4 @@
+Build completed successfully (2296 jobs).
+'BinaryPairBound.equation_4_1_log_ratio' depends on axioms: [propext, Classical.choice, Quot.sound]
+BinaryPairBound.SharpBound : Prop
+BinaryPairBound.EqualityClassification : Prop
