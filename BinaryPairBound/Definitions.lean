@@ -46,8 +46,8 @@ def klRatios (s c d : ℝ) : Set ℝ :=
 
 /-- Distribution-dependent contraction coefficient, with the paper's zero convention.
 
-The nonemptiness and boundedness of `klRatios` under `Valid` and
-`Nondegenerate` are outstanding blueprint obligations, not assumed facts.
+Nonemptiness and boundedness of `klRatios` under `Valid` and
+`Nondegenerate` are proved in `Contraction.lean`, using binary data processing.
 -/
 def S (s c d : ℝ) : ℝ := by
   classical

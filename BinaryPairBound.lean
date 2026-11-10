@@ -1,4 +1,24 @@
 module
 
+public import BinaryPairBound.ChannelCap
+public import BinaryPairBound.Compactness
+public import BinaryPairBound.Contraction
+public import BinaryPairBound.Curvature
+public import BinaryPairBound.Definitions
+public import BinaryPairBound.Divergence
+public import BinaryPairBound.DivergenceCalculus
+public import BinaryPairBound.Endpoints
+public import BinaryPairBound.Entropy
+public import BinaryPairBound.Information
+public import BinaryPairBound.LocalCoefficient
+public import BinaryPairBound.Main
+public import BinaryPairBound.Merging
+public import BinaryPairBound.MergingSharp
+public import BinaryPairBound.Optimization
+public import BinaryPairBound.Perturbation
+public import BinaryPairBound.Reduction
+public import BinaryPairBound.ScalarEntropy
 public import BinaryPairBound.Specification
+public import BinaryPairBound.SymmetricSource
+public import BinaryPairBound.Symmetry
 public import BinaryPairBound.TangentGap

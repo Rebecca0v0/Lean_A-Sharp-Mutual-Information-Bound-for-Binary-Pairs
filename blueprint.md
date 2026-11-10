@@ -14,22 +14,41 @@ Lean project.
 
 | Item | Status |
 |---|---|
-| Scalar definitions and theorem specifications | Compiled; targets remain unproved |
-| Entropy tangent identity and equation (4.1) | Proved, compiled, and axiom-audited |
-| All remaining nodes below | Planned; not formally proved in this project |
-| Theorem 2.1 and its equality cases | Specified target; not proved |
+| Scalar definitions and Theorem 2.1 specifications | Compiled; original main target remains unproved |
+| Equation (4.1), Bernoulli KL positivity and data processing | Proved |
+| Exact coefficient range and cap/support equivalence | Proved |
+| Independence, cap endpoints, binary relabeling | Proved |
+| Curvature maximum, distinguished input, `rhoSquared ≤ S ≤ eta` | Proved |
+| `S = eta` at the distinguished input | Proved |
+| Both parts of Lemma 7.1, including the increment equality condition | Proved |
+| Proposition 7.2 at the distinguished input, using exact `S` | Proved |
+| Exact DSBS coefficient and sharp feasible witnesses | Proved |
+| Closed cap sets, maximizer existence and nondegeneracy | Proved |
+| Four contact-gap partial derivatives and conditional slope formulas | Proved |
+| Full inequality and equality assembly from `MaximizersMerge` | Proved conditionally; premise NOT proved |
+| Distinct-contact classification, feasible IFT family, strict improvement signs | Outstanding |
+| Boundary improvement, cap saturation, maximizers must merge | Outstanding |
 
-An unproved target is represented as a proposition, rather than a theorem
-with a placeholder proof. The build must distinguish a checked specification
-from an inhabitant of that specification.
+There is no inhabitant of `MainTheorem` yet. `Main.lean` isolates the
+remaining geometric reduction as the proposition `MaximizersMerge` and proves
+`mainTheorem_of_maximizersMerge : MaximizersMerge → MainTheorem`. This is an
+explicit conditional theorem, not an axiom or a placeholder proof of the paper.
 
-The first milestone was checked on 10 November 2026 with Lean 4.35.0 and
-mathlib 4.35.0. The checked declarations are `H_eq`, `D_eq_log_ratio`,
-`entropy_tangent_gap`, `hasDerivAt_entropyCurve`, `deriv_entropyCurve`,
-`equation_4_1`, `q_mem_Icc`, and `equation_4_1_log_ratio`, in namespace
-`BinaryPairBound`. `Audit.lean` guards the axiom lists of the KL correspondence,
-derivative theorem, and the two versions of equation (4.1). They use only
-`propext`, `Classical.choice`, and `Quot.sound`.
+The completed modules are imported by `BinaryPairBound.lean`; `Audit.lean`
+checks the major dependency chains for extra axioms. See `README.md` for the
+module-to-paper map and `verification.log` for the last integrated check.
+
+Two alternate arguments reduce the required infrastructure:
+
+- `Compactness.lean` proves closed cap sublevel sets from continuity of each
+  fixed-test-input KL inequality; joint diagonal-ratio continuity is not
+  assumed for maximizer existence.
+- `LocalCoefficient.lean` proves `rhoSquared ≤ S` by local strict concavity
+  contradicting the supporting tangent; no KL quotient limit is assumed.
+
+The detailed obligations below remain the complete blueprint. Items marked
+proved in this table need not be redone; the unresolved contact, perturbation,
+and boundary arguments are still necessary to close `MaximizersMerge`.
 
 ## Definitions and conventions
 

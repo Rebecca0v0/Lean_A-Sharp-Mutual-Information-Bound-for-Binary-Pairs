@@ -1,4 +1,7 @@
-Build completed successfully (2296 jobs).
-'BinaryPairBound.equation_4_1_log_ratio' depends on axioms: [propext, Classical.choice, Quot.sound]
+✔ [2291/2314] Built BinaryPairBound.Definitions (5.4s)
+✔ [2313/2314] Built BinaryPairBound (1.8s)
+Build completed successfully (2314 jobs).
+BinaryPairBound.mainTheorem_of_maximizersMerge : BinaryPairBound.MaximizersMerge → BinaryPairBound.MainTheorem
+'BinaryPairBound.mainTheorem_of_maximizersMerge' depends on axioms: [propext, Classical.choice, Quot.sound]
 BinaryPairBound.SharpBound : Prop
 BinaryPairBound.EqualityClassification : Prop
