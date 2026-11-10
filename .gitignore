@@ -1,0 +1,6 @@
+.lake/
+.tooling/
+.DS_Store
+*.olean
+*.ilean
+*.trace
