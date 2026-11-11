@@ -18,6 +18,8 @@ is now inhabited by `maximizersMerge`.
 
 The two exposed conclusions are `sharp_bound` and `sharp_equality_iff`.
 `fixed_cap_optimum` also proves the exact constrained optimum in (3.1).
+The same theorem now holds for measurable binary random variables on any
+probability space, and the finite-source consequences in Section 10 are proved.
 
 ## Definitions
 
@@ -62,6 +64,14 @@ flowchart TD
   P --> Q[Theorem 2.1 and complete equality]
   N --> Q
   R[DSBS witnesses, endpoints, relabeling] --> Q
+  Q --> RV[Actual binary joint laws and arbitrary probability spaces]
+  FE[Finite density entropy and log-sum convexity] --> KL[Exact finite KL coefficient]
+  FE --> TP[Independent-product tensorization]
+  KL --> DP[Two-sided deterministic data processing]
+  Q --> DP
+  TP --> S10[Section 10: IID Boolean observations]
+  DP --> S10
+  RV --> DIR[Directed minimum bound and strictness]
 ```
 
 ## Verified steps and representative declarations
@@ -138,15 +148,64 @@ maximizer, so the merging equality conditions force it to be DSBS. Coefficient
 zero is precisely independence; coefficient one is handled by the entropy
 maximum characterization. Output relabeling covers negative channel slope.
 
-## Trust and remaining extensions
+## Random variables and Section 10
 
-All 44 source modules are built. `Audit.lean` guards 80 axiom lists, including
-the final unconditional theorem and its direct corollaries. Only the standard
+1. `BinaryLaw` starts with four nonnegative atom probabilities summing to one.
+   Its canonical conditional probabilities recover every atom, including null
+   input rows. Shannon mutual information, defined as marginal entropy minus
+   joint entropy, is proved equal to `J`. Table factorization and opposite-cell
+   symmetry are proved equivalent to the scalar independence and DSBS predicates.
+2. `RandomVariables` constructs this law from the actual joint events of
+   measurable `W Z : Ω → Bool` under any probability measure. Its independence
+   predicate is proved equivalent to mathlib's `ProbabilityTheory.IndepFun`.
+3. `FiniteEntropy` defines homogeneous density entropy
+   `Ent_p(f) = Σ p f log f − (Σ p f) log(Σ p f)` and proves nonnegativity
+   and the data-processing inequality. `FiniteEntropyConvex` proves log-sum
+   and convexity in the density, allowing zero weights and zero atoms.
+4. `FiniteContraction` constructs the supremum coefficient and proves it
+   lies in `[0,1]` and satisfies its own universal cap. `FiniteKL` identifies
+   the density ratios exactly with KL ratios over supported alternative
+   probability laws; homogeneity removes the density normalization.
+   `BinaryKernel` identifies this coefficient with the unchanged scalar `S`.
+5. `FiniteJoint` reconstructs every finite joint source from its input marginal
+   and conditional channel, proves exact atom recovery, and proves the
+   coefficient is independent of choices on null conditioning events.
+6. `FiniteTensorization` proves the entropy chain identity for product laws.
+   Applying the cap conditionally in one coordinate, convexity to posterior
+   mixtures in the other, and the second cap gives a product cap. Induction
+   gives every finite power, including the empty product. Explicit equivalences
+   to `Fin n → α` and product formulas verify the IID interpretation.
+   Tests depending on one coordinate give the reverse inequality, proving
+   exact coefficient equality for every positive number of copies.
+7. `FiniteProcessing` proves that separately applying Boolean functions to
+   both observations cannot increase the coefficient. Its output atom formula
+   is the actual pushforward of `p(x)K(y|x)`.
+8. `Section10` combines these proved facts with the original main theorem and
+   monotonicity of `phi`. It gives the bound for arbitrary finite joint sources
+   and the DSBS specialization. No tensorization or processing premise remains.
+   `FiniteRandomVariables` and `Section10RandomVariables` identify these finite
+   pushforwards with actual event probabilities on any probability space.
+   `HasIIDJointLaw` is only the joint-atom product formula for IID observations;
+   the information and contraction conclusions are proved from it.
+   `iid_dsbs_random_variable_bound_source` gives the paper's exact display
+   with the actual source mutual information `I(U;V)` on the right.
+9. `ReverseChannel` reconstructs the Bayes-reverse binary channel and proves
+   mutual information symmetry. Applying the main theorem in both directions
+   gives the minimum bound. Equality forces equal directed coefficients, so
+   unequal coefficients give a strict bound. DSBS witnesses attain the bound
+   for every equal prescribed coefficient. `RandomVariableDirections` exposes
+   the minimum and strict bounds for the actual variable orders `(W,Z)` and `(Z,W)`.
+
+## Trust and scope
+
+All 59 source modules are built. `Audit.lean` guards 121 axiom lists for the main
+theorem and the probability, finite-KL, and Section 10 results. Only the standard
 `propext`, `Classical.choice`, and `Quot.sound` appear. No added axioms,
 `sorry`, or native decision shortcuts stand in for mathematical arguments.
 
-The scalar main theorem is complete. An explicit arbitrary probability-space
-bridge and the Section 10 tensorization/Boolean-function corollary remain
-separate extensions. Contact existence is established at every nonmerging
+The arbitrary probability-space bridge and Section 10 Boolean-function
+consequences are included. The new optimization problem for unequal prescribed
+forward/reverse coefficients remains a research question in the paper; only
+its asserted bound and nonattainment are formalized. Contact existence is established at every nonmerging
 source's actual cap; a standalone arbitrary-cap version of all of Lemma 4.1
 is not required by, or claimed as part of, this certificate.

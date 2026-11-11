@@ -329,8 +329,181 @@ axiom names and theorem names must match exactly.
 #guard_msgs (whitespace := lax) in
 #print axioms BinaryPairBound.fixed_cap_optimum
 
+/-- info: 'BinaryPairBound.BinaryLaw.mutualInfo_eq' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.BinaryLaw.mutualInfo_eq
+
+/-- info: 'BinaryPairBound.BinaryLaw.independent_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.BinaryLaw.independent_iff
+
+/-- info: 'BinaryPairBound.binaryLaw.independent_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.binaryLaw.independent_iff
+
+/-- info: 'BinaryPairBound.binary_random_variable_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.binary_random_variable_bound
+
+/-- info: 'BinaryPairBound.binary_random_variable_equality_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.binary_random_variable_equality_iff
+
+/-- info: 'BinaryPairBound.binaryContraction_eq_coefficient' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.binaryContraction_eq_coefficient
+
+/-- info: 'BinaryPairBound.FiniteInfo.contracts_binary_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.contracts_binary_iff
+
+/-- info: 'BinaryPairBound.FiniteInfo.coefficient_binary' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.coefficient_binary
+
+/-- info: 'BinaryPairBound.FiniteInfo.entropy_nonneg' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.entropy_nonneg
+
+/-- info: 'BinaryPairBound.FiniteInfo.entropy_transfer_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.entropy_transfer_le
+
+/-- info: 'BinaryPairBound.FiniteInfo.entropy_mix_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.entropy_mix_le
+
+/-- info: 'BinaryPairBound.FiniteInfo.contracts_coefficient' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.contracts_coefficient
+
+/-- info: 'BinaryPairBound.FiniteInfo.coefficient_le_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.coefficient_le_iff
+
+/-- info: 'BinaryPairBound.FiniteInfo.coefficient_eq_sup_KL' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.coefficient_eq_sup_KL
+
+/-- info: 'BinaryPairBound.FiniteInfo.relativeEntropy_dataProcessing' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.relativeEntropy_dataProcessing
+
+/-- info: 'BinaryPairBound.FiniteInfo.joint_conditional_mass' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.joint_conditional_mass
+
+/-- info: 'BinaryPairBound.FiniteInfo.jointCoefficient_default_irrel' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.jointCoefficient_default_irrel
+
+/-- info: 'BinaryPairBound.FiniteInfo.Contracts.prod' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.Contracts.prod
+
+/-- info: 'BinaryPairBound.FiniteInfo.Contracts.power' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.Contracts.power
+
+/-- info: 'BinaryPairBound.FiniteInfo.coefficient_power_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.coefficient_power_le
+
+/-- info: 'BinaryPairBound.FiniteInfo.processedLaw_contraction_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.processedLaw_contraction_le
+
+/-- info: 'BinaryPairBound.FiniteInfo.processedLaw_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.processedLaw_bound
+
+/-- info: 'BinaryPairBound.FiniteInfo.iid_binary_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.iid_binary_bound
+
+/-- info: 'BinaryPairBound.FiniteInfo.iid_joint_binary_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.iid_joint_binary_bound
+
+/-- info: 'BinaryPairBound.FiniteInfo.iid_dsbs_binary_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.iid_dsbs_binary_bound
+
+/-- info: 'BinaryPairBound.FiniteInfo.iid_dsbs_binary_bound_entropy' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.iid_dsbs_binary_bound_entropy
+
+/-- info: 'BinaryPairBound.J_reverse' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.J_reverse
+
+/-- info: 'BinaryPairBound.bidirectional_strict_of_ne' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.bidirectional_strict_of_ne
+
+/-- info: 'BinaryPairBound.equal_directed_cap_optimum' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.equal_directed_cap_optimum
+
+/-- info: 'BinaryPairBound.binary_random_variable_bidirectional_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.binary_random_variable_bidirectional_bound
+
+/-- info: 'BinaryPairBound.binary_random_variable_bidirectional_strict' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.binary_random_variable_bidirectional_strict
+
+/-- info: 'BinaryPairBound.FiniteInfo.coefficient_power_succ' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.coefficient_power_succ
+
+/-- info: 'BinaryPairBound.FiniteInfo.iid_joint_binary_mass' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.iid_joint_binary_mass
+
+/-- info: 'BinaryPairBound.FiniteInfo.ratios_eq_probabilityRatios' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.ratios_eq_probabilityRatios
+
+/-- info: 'BinaryPairBound.binaryMutualInfo_eq_entropy' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.binaryMutualInfo_eq_entropy
+
+/-- info: 'BinaryPairBound.binaryLaw_mass_eq_sum' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.binaryLaw_mass_eq_sum
+
+/-- info: 'BinaryPairBound.binaryLaw_iid_joint_eq' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.binaryLaw_iid_joint_eq
+
+/-- info: 'BinaryPairBound.iid_joint_random_variable_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.iid_joint_random_variable_bound
+
+/-- info: 'BinaryPairBound.iid_joint_random_variable_contraction_le' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.iid_joint_random_variable_contraction_le
+
+/-- info: 'BinaryPairBound.iid_dsbs_random_variable_bound' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.iid_dsbs_random_variable_bound
+
+/-- info: 'BinaryPairBound.iid_dsbs_random_variable_bound_source' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.iid_dsbs_random_variable_bound_source
+
 -- The original target now has an unconditional proof.
 #check (BinaryPairBound.mainTheorem : BinaryPairBound.MainTheorem)
 #check @BinaryPairBound.sharp_bound
 #check @BinaryPairBound.sharp_equality_iff
 #print axioms BinaryPairBound.mainTheorem
+
+-- Probability-space and Section 10 interfaces, with their complete types.
+#check @BinaryPairBound.binary_random_variable_equality_iff
+#check @BinaryPairBound.FiniteInfo.iid_joint_binary_bound
+#check @BinaryPairBound.FiniteInfo.iid_dsbs_binary_bound_entropy
+#check @BinaryPairBound.iid_joint_random_variable_bound
+#check @BinaryPairBound.iid_dsbs_random_variable_bound
+#check @BinaryPairBound.iid_dsbs_random_variable_bound_source
+#check @BinaryPairBound.binary_random_variable_bidirectional_strict

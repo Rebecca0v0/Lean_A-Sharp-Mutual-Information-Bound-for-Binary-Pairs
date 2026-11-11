@@ -1,9 +1,6 @@
-✔ [2590/2607] Built BinaryPairBound.ContactJacobian (2.8s)
-✔ [2591/2607] Built BinaryPairBound.Hyperbolic (3.2s)
-✔ [2593/2607] Built BinaryPairBound.InformationPerturbation (3.5s)
-✔ [2598/2607] Built BinaryPairBound.ContactSymmetry (3.8s)
-✔ [2601/2607] Built BinaryPairBound.OutputDirection (2.3s)
-Build completed successfully (2607 jobs).
+✔ [2735/2753] Built BinaryPairBound.SymmetricSource (2.5s)
+✔ [2752/2753] Built BinaryPairBound (2.4s)
+Build completed successfully (2753 jobs).
 BinaryPairBound.mainTheorem : BinaryPairBound.MainTheorem
 @BinaryPairBound.sharp_bound : ∀ {s c d : ℝ},
   BinaryPairBound.Valid s c d → BinaryPairBound.J s c d ≤ BinaryPairBound.phi (BinaryPairBound.S s c d)
@@ -12,3 +9,55 @@ BinaryPairBound.mainTheorem : BinaryPairBound.MainTheorem
     (BinaryPairBound.J s c d = BinaryPairBound.phi (BinaryPairBound.S s c d) ↔
       BinaryPairBound.Independent s c d ∨ BinaryPairBound.DSBS s c d)
 'BinaryPairBound.mainTheorem' depends on axioms: [propext, Classical.choice, Quot.sound]
+@BinaryPairBound.binary_random_variable_equality_iff : ∀ {Ω : Type u_1} [inst : MeasurableSpace Ω]
+  (μ : MeasureTheory.Measure Ω) [inst_1 : MeasureTheory.IsProbabilityMeasure μ] (W Z : Ω → Bool) (hW : Measurable W)
+  (hZ : Measurable Z),
+  BinaryPairBound.binaryMutualInfo μ W Z hW hZ = BinaryPairBound.phi (BinaryPairBound.binaryContraction μ W Z hW hZ) ↔
+    ProbabilityTheory.IndepFun W Z μ ∨ BinaryPairBound.BinaryDSBS μ W Z
+@BinaryPairBound.FiniteInfo.iid_joint_binary_bound : ∀ {α : Type u_1} {β : Type u_2} [inst : Fintype α]
+  [inst_1 : Fintype β] (P : BinaryPairBound.FiniteInfo.Law (α × β)) (default : β) (n : ℕ) (f : (Fin n → α) → Bool)
+  (g : (Fin n → β) → Bool),
+  (BinaryPairBound.FiniteInfo.iidBinaryLaw (BinaryPairBound.FiniteInfo.first P)
+        (BinaryPairBound.FiniteInfo.conditional P default) n f g).mutualInfo ≤
+    BinaryPairBound.phi (BinaryPairBound.FiniteInfo.jointCoefficient P default)
+@BinaryPairBound.FiniteInfo.iid_dsbs_binary_bound_entropy : ∀ {c : ℝ} (hc : c ∈ Set.Icc 0 1) (n : ℕ)
+  (f g : (Fin n → Bool) → Bool),
+  (BinaryPairBound.FiniteInfo.iidBinaryLaw
+        (BinaryPairBound.FiniteInfo.bernoulli (1 / 2) BinaryPairBound.FiniteInfo.iid_dsbs_binary_bound._proof_1)
+        (BinaryPairBound.FiniteInfo.binaryChannel c c hc hc) n f g).mutualInfo ≤
+    Real.log 2 - BinaryPairBound.H c
+@BinaryPairBound.iid_joint_random_variable_bound : ∀ {Ω : Type u_1} {α : Type u_2} {β : Type u_3}
+  [inst : MeasurableSpace Ω] [inst_1 : Fintype α] [inst_2 : Fintype β] [inst_3 : MeasurableSpace α]
+  [inst_4 : MeasurableSingletonClass α] [inst_5 : MeasurableSpace β] [inst_6 : MeasurableSingletonClass β]
+  (μ : MeasureTheory.Measure Ω) [inst_7 : MeasureTheory.IsProbabilityMeasure μ]
+  (P : BinaryPairBound.FiniteInfo.Law (α × β)) (default : β) {n : ℕ} (X : Ω → Fin n → α) (Y : Ω → Fin n → β)
+  (hX : Measurable X) (hY : Measurable Y),
+  BinaryPairBound.HasIIDJointLaw μ P X Y →
+    ∀ (f : (Fin n → α) → Bool) (g : (Fin n → β) → Bool),
+      BinaryPairBound.binaryMutualInfo μ (f ∘ X) (g ∘ Y) ⋯ ⋯ ≤
+        BinaryPairBound.phi (BinaryPairBound.FiniteInfo.jointCoefficient P default)
+@BinaryPairBound.iid_dsbs_random_variable_bound : ∀ {Ω : Type u_1} [inst : MeasurableSpace Ω]
+  (μ : MeasureTheory.Measure Ω) [inst_1 : MeasureTheory.IsProbabilityMeasure μ] {c : ℝ} (hc : c ∈ Set.Icc 0 1) {n : ℕ}
+  (X Y : Ω → Fin n → Bool) (hX : Measurable X) (hY : Measurable Y),
+  BinaryPairBound.HasIIDJointLaw μ
+      (BinaryPairBound.FiniteInfo.joint
+        (BinaryPairBound.FiniteInfo.bernoulli (1 / 2) BinaryPairBound.iid_dsbs_random_variable_bound._proof_1)
+        (BinaryPairBound.FiniteInfo.binaryChannel c c hc hc))
+      X Y →
+    ∀ (f g : (Fin n → Bool) → Bool),
+      BinaryPairBound.binaryMutualInfo μ (f ∘ X) (g ∘ Y) ⋯ ⋯ ≤ Real.log 2 - BinaryPairBound.H c
+@BinaryPairBound.iid_dsbs_random_variable_bound_source : ∀ {Ω : Type u_1} [inst : MeasurableSpace Ω]
+  (μ : MeasureTheory.Measure Ω) [inst_1 : MeasureTheory.IsProbabilityMeasure μ] (U V : Ω → Bool) (hU : Measurable U)
+  (hV : Measurable V),
+  BinaryPairBound.BinaryDSBS μ U V →
+    ∀ {n : ℕ} (X Y : Ω → Fin n → Bool) (hX : Measurable X) (hY : Measurable Y),
+      BinaryPairBound.HasIIDJointLaw μ (BinaryPairBound.finiteLaw μ (fun ω => (U ω, V ω)) ⋯) X Y →
+        ∀ (f g : (Fin n → Bool) → Bool),
+          BinaryPairBound.binaryMutualInfo μ (f ∘ X) (g ∘ Y) ⋯ ⋯ ≤ BinaryPairBound.binaryMutualInfo μ U V hU hV
+@BinaryPairBound.binary_random_variable_bidirectional_strict : ∀ {Ω : Type u_1} [inst : MeasurableSpace Ω]
+  (μ : MeasureTheory.Measure Ω) [inst_1 : MeasureTheory.IsProbabilityMeasure μ] (W Z : Ω → Bool) (hW : Measurable W)
+  (hZ : Measurable Z),
+  BinaryPairBound.binaryContraction μ W Z hW hZ ≠ BinaryPairBound.binaryContraction μ Z W hZ hW →
+    BinaryPairBound.binaryMutualInfo μ W Z hW hZ <
+      BinaryPairBound.phi
+        (min (BinaryPairBound.binaryContraction μ W Z hW hZ) (BinaryPairBound.binaryContraction μ Z W hZ hW))

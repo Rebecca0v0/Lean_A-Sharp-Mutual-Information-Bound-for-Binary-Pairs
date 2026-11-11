@@ -63,7 +63,7 @@ theorem sharp_equality_of_dsbs {s c d : ℝ} (hv : Valid s c d) (hdsbs : DSBS s 
   exact J_half_symmetric_eq_phi_eta hv.2.1
 
 /-- Both families asserted as equality cases by the paper do attain the bound.
-The converse classification for arbitrary pairs remains a separate task. -/
+The converse classification for arbitrary pairs is proved in `MainProof.lean`. -/
 theorem sharp_equality_of_independent_or_dsbs {s c d : ℝ} (hv : Valid s c d)
     (heq : Independent s c d ∨ DSBS s c d) : J s c d = phi (S s c d) := by
   rcases heq with hi | hd

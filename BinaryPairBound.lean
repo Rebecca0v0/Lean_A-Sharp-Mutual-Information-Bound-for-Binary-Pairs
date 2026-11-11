@@ -1,5 +1,7 @@
 module
 
+public import BinaryPairBound.BinaryKernel
+public import BinaryPairBound.BinaryLaw
 public import BinaryPairBound.BoundaryCoefficient
 public import BinaryPairBound.BoundaryContinuation
 public import BinaryPairBound.BoundaryImprovement
@@ -22,6 +24,14 @@ public import BinaryPairBound.Divergence
 public import BinaryPairBound.DivergenceCalculus
 public import BinaryPairBound.Endpoints
 public import BinaryPairBound.Entropy
+public import BinaryPairBound.FiniteContraction
+public import BinaryPairBound.FiniteEntropy
+public import BinaryPairBound.FiniteEntropyConvex
+public import BinaryPairBound.FiniteJoint
+public import BinaryPairBound.FiniteKL
+public import BinaryPairBound.FiniteProcessing
+public import BinaryPairBound.FiniteRandomVariables
+public import BinaryPairBound.FiniteTensorization
 public import BinaryPairBound.Hyperbolic
 public import BinaryPairBound.Information
 public import BinaryPairBound.InformationPerturbation
@@ -36,10 +46,15 @@ public import BinaryPairBound.MergingSharp
 public import BinaryPairBound.Optimization
 public import BinaryPairBound.OutputDirection
 public import BinaryPairBound.Perturbation
+public import BinaryPairBound.RandomVariableDirections
+public import BinaryPairBound.RandomVariables
 public import BinaryPairBound.RatioContinuity
 public import BinaryPairBound.Reduction
 public import BinaryPairBound.ReflectedSign
+public import BinaryPairBound.ReverseChannel
 public import BinaryPairBound.ScalarEntropy
+public import BinaryPairBound.Section10
+public import BinaryPairBound.Section10RandomVariables
 public import BinaryPairBound.Specification
 public import BinaryPairBound.SymmetricSource
 public import BinaryPairBound.Symmetry
