@@ -5,21 +5,22 @@ public import BinaryPairBound.MergingSharp
 public import BinaryPairBound.Reduction
 
 /-!
-# Assembly of Theorem 2.1 conditional on the remaining contact reduction
+# Assembly of Theorem 2.1 from the maximizer reduction
 
-`MaximizersMerge` is an UNPROVED proposition, not an axiom. The theorems in
-this file show that proving this geometric reduction suffices for the exact
-original bound and its complete equality classification. No inhabitant of
-`MainTheorem` is asserted here.
+`MaximizersMerge` is a proposition, not an axiom. This file assembles the
+exact original bound and its complete equality classification from that
+geometric reduction. `MainProof.lean` proves the reduction and supplies the
+unconditional inhabitant `mainTheorem : MainTheorem`.
 -/
 
 @[expose] public section
 
 namespace BinaryPairBound
 
-/-- The remaining geometric theorem from Sections 4–6 and 9. It says that
+/-- The geometric reduction from Sections 4–6 and 9. It says that
 every normalized nonendpoint-cap maximizer has an interior channel and its
-reference input is the distinguished input. This proposition is NOT proved. -/
+reference input is the distinguished input. It is proved by `maximizersMerge`
+in `MainProof.lean`. -/
 def MaximizersMerge : Prop :=
   ∀ lam s c d : ℝ, lam ∈ Set.Ioo (0 : ℝ) 1 → IsCapMaximizer lam s c d → c + d ≤ 1 →
     c ∈ Set.Ioo (0 : ℝ) 1 ∧ d ∈ Set.Ioo (0 : ℝ) 1 ∧ s = distinguishedInput c d
@@ -34,8 +35,7 @@ theorem cap_maximizer_bound_of_merge (hmerge : MaximizersMerge)
     simpa only [hs] using merging_sharp_bound hc hd hcdlt
   exact hJ.trans (phi_strictMonoOn.monotoneOn (S_mem_Icc hm.1) ⟨hlam.1.le, hlam.2.le⟩ hm.2.1)
 
-/-- Conditional assembly of the inequality. The premise is the remaining
-unproved contact/optimization reduction. -/
+/-- Assembly of the inequality from the contact/optimization reduction. -/
 theorem sharpBound_of_maximizersMerge (hmerge : MaximizersMerge) : SharpBound := by
   intro s c d hv
   by_cases hS0 : S s c d = 0
@@ -89,8 +89,8 @@ theorem equalityClassification_of_maximizersMerge (hmerge : MaximizersMerge) :
       exact Or.inr ⟨heq.1, by linarith [heq.2]⟩
   · exact sharp_equality_of_independent_or_dsbs hv
 
-/-- Completing `MaximizersMerge` would complete the unchanged original theorem
-specification. This conditional theorem is NOT a completed proof of the paper. -/
+/-- Assemble the unchanged original theorem specification from its geometric
+reduction. `MainProof.lean` discharges this premise. -/
 theorem mainTheorem_of_maximizersMerge (hmerge : MaximizersMerge) : MainTheorem :=
   ⟨sharpBound_of_maximizersMerge hmerge, equalityClassification_of_maximizersMerge hmerge⟩
 

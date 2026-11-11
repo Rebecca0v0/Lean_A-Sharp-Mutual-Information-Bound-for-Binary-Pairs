@@ -1,7 +1,20 @@
 module
 
+public import BinaryPairBound.BoundaryCoefficient
+public import BinaryPairBound.BoundaryContinuation
+public import BinaryPairBound.BoundaryImprovement
+public import BinaryPairBound.CapSaturation
 public import BinaryPairBound.ChannelCap
 public import BinaryPairBound.Compactness
+public import BinaryPairBound.ContactEndpoints
+public import BinaryPairBound.ContactFamily
+public import BinaryPairBound.ContactFeasibility
+public import BinaryPairBound.ContactGeometry
+public import BinaryPairBound.ContactJacobian
+public import BinaryPairBound.ContactMonotonicity
+public import BinaryPairBound.ContactPlacement
+public import BinaryPairBound.ContactSigns
+public import BinaryPairBound.ContactSymmetry
 public import BinaryPairBound.Contraction
 public import BinaryPairBound.Curvature
 public import BinaryPairBound.Definitions
@@ -9,14 +22,23 @@ public import BinaryPairBound.Divergence
 public import BinaryPairBound.DivergenceCalculus
 public import BinaryPairBound.Endpoints
 public import BinaryPairBound.Entropy
+public import BinaryPairBound.Hyperbolic
 public import BinaryPairBound.Information
+public import BinaryPairBound.InformationPerturbation
+public import BinaryPairBound.InteriorMaximizer
+public import BinaryPairBound.JointRatioContinuity
 public import BinaryPairBound.LocalCoefficient
 public import BinaryPairBound.Main
+public import BinaryPairBound.MainProof
+public import BinaryPairBound.MaximizerVariations
 public import BinaryPairBound.Merging
 public import BinaryPairBound.MergingSharp
 public import BinaryPairBound.Optimization
+public import BinaryPairBound.OutputDirection
 public import BinaryPairBound.Perturbation
+public import BinaryPairBound.RatioContinuity
 public import BinaryPairBound.Reduction
+public import BinaryPairBound.ReflectedSign
 public import BinaryPairBound.ScalarEntropy
 public import BinaryPairBound.Specification
 public import BinaryPairBound.SymmetricSource

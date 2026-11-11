@@ -1,7 +1,14 @@
-✔ [2291/2314] Built BinaryPairBound.Definitions (5.4s)
-✔ [2313/2314] Built BinaryPairBound (1.8s)
-Build completed successfully (2314 jobs).
-BinaryPairBound.mainTheorem_of_maximizersMerge : BinaryPairBound.MaximizersMerge → BinaryPairBound.MainTheorem
-'BinaryPairBound.mainTheorem_of_maximizersMerge' depends on axioms: [propext, Classical.choice, Quot.sound]
-BinaryPairBound.SharpBound : Prop
-BinaryPairBound.EqualityClassification : Prop
+✔ [2590/2607] Built BinaryPairBound.ContactJacobian (2.8s)
+✔ [2591/2607] Built BinaryPairBound.Hyperbolic (3.2s)
+✔ [2593/2607] Built BinaryPairBound.InformationPerturbation (3.5s)
+✔ [2598/2607] Built BinaryPairBound.ContactSymmetry (3.8s)
+✔ [2601/2607] Built BinaryPairBound.OutputDirection (2.3s)
+Build completed successfully (2607 jobs).
+BinaryPairBound.mainTheorem : BinaryPairBound.MainTheorem
+@BinaryPairBound.sharp_bound : ∀ {s c d : ℝ},
+  BinaryPairBound.Valid s c d → BinaryPairBound.J s c d ≤ BinaryPairBound.phi (BinaryPairBound.S s c d)
+@BinaryPairBound.sharp_equality_iff : ∀ {s c d : ℝ},
+  BinaryPairBound.Valid s c d →
+    (BinaryPairBound.J s c d = BinaryPairBound.phi (BinaryPairBound.S s c d) ↔
+      BinaryPairBound.Independent s c d ∨ BinaryPairBound.DSBS s c d)
+'BinaryPairBound.mainTheorem' depends on axioms: [propext, Classical.choice, Quot.sound]

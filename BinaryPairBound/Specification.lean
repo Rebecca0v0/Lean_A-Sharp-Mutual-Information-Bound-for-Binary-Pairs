@@ -3,11 +3,11 @@ module
 public import BinaryPairBound.Definitions
 
 /-!
-# Unproved targets
+# Theorem specifications
 
-These are definitions of propositions, not proofs or axioms. Compiling this
-file checks that the specifications are well-formed; it does NOT prove
-Theorem 2.1. See `blueprint.md` for the remaining proof obligations.
+These are definitions of propositions, not axioms. Their unconditional
+proof is `BinaryPairBound.mainTheorem` in `MainProof.lean`. Compiling this
+specification file alone only checks that the statements are well-formed.
 -/
 
 @[expose] public section
@@ -23,7 +23,7 @@ def EqualityClassification : Prop :=
   ∀ s c d : ℝ, Valid s c d →
     (J s c d = phi (S s c d) ↔ Independent s c d ∨ DSBS s c d)
 
-/-- The initial project goal. This proposition has not yet been proved. -/
+/-- The inequality and complete equality statement of Theorem 2.1. -/
 def MainTheorem : Prop := SharpBound ∧ EqualityClassification
 
 end BinaryPairBound

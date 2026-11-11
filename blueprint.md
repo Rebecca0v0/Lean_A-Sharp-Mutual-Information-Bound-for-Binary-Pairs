@@ -1,229 +1,152 @@
 # Proof blueprint
 
 Source: Qianmian Guo, *A Sharp Mutual Information Bound for Binary Pairs*,
-arXiv:2611.02392v1 (2 November 2026). Equation and section numbers below refer
-to that version. This document is a development plan, not a proof certificate.
+arXiv:2611.02392v1 (2 November 2026). Equation numbers refer to that version.
 
-## Scope and status
+## Completed target
 
-The first target is Theorem 2.1 for the scalar channel parameters `(s,c,d)`,
-including its equality characterization. The later connection to arbitrary
-binary random variables and the Boolean-function consequence in Section 10
-are separate tasks. No unproved result in this blueprint is an axiom of the
-Lean project.
+`MainProof.lean` proves the unchanged scalar specification:
 
-| Item | Status |
-|---|---|
-| Scalar definitions and Theorem 2.1 specifications | Compiled; original main target remains unproved |
-| Equation (4.1), Bernoulli KL positivity and data processing | Proved |
-| Exact coefficient range and cap/support equivalence | Proved |
-| Independence, cap endpoints, binary relabeling | Proved |
-| Curvature maximum, distinguished input, `rhoSquared ≤ S ≤ eta` | Proved |
-| `S = eta` at the distinguished input | Proved |
-| Both parts of Lemma 7.1, including the increment equality condition | Proved |
-| Proposition 7.2 at the distinguished input, using exact `S` | Proved |
-| Exact DSBS coefficient and sharp feasible witnesses | Proved |
-| Closed cap sets, maximizer existence and nondegeneracy | Proved |
-| Four contact-gap partial derivatives and conditional slope formulas | Proved |
-| Full inequality and equality assembly from `MaximizersMerge` | Proved conditionally; premise NOT proved |
-| Distinct-contact classification, feasible IFT family, strict improvement signs | Outstanding |
-| Boundary improvement, cap saturation, maximizers must merge | Outstanding |
+```lean
+mainTheorem : MainTheorem
+```
 
-There is no inhabitant of `MainTheorem` yet. `Main.lean` isolates the
-remaining geometric reduction as the proposition `MaximizersMerge` and proves
-`mainTheorem_of_maximizersMerge : MaximizersMerge → MainTheorem`. This is an
-explicit conditional theorem, not an axiom or a placeholder proof of the paper.
+Here `MainTheorem = SharpBound ∧ EqualityClassification`, quantifying over
+all valid `(s,c,d) ∈ [0,1]^3`. The final proof has no contact, optimization,
+boundary, or implicit-family premise. The former `MaximizersMerge` obligation
+is now inhabited by `maximizersMerge`.
 
-The completed modules are imported by `BinaryPairBound.lean`; `Audit.lean`
-checks the major dependency chains for extra axioms. See `README.md` for the
-module-to-paper map and `verification.log` for the last integrated check.
+The two exposed conclusions are `sharp_bound` and `sharp_equality_iff`.
+`fixed_cap_optimum` also proves the exact constrained optimum in (3.1).
 
-Two alternate arguments reduce the required infrastructure:
+## Definitions
 
-- `Compactness.lean` proves closed cap sublevel sets from continuity of each
-  fixed-test-input KL inequality; joint diagonal-ratio continuity is not
-  assumed for maximizer existence.
-- `LocalCoefficient.lean` proves `rhoSquared ≤ S` by local strict concavity
-  contradicting the supporting tangent; no KL quotient limit is assumed.
-
-The detailed obligations below remain the complete blueprint. Items marked
-proved in this table need not be redone; the unresolved contact, perturbation,
-and boundary arguments are still necessary to close `MaximizersMerge`.
-
-## Definitions and conventions
-
-- Parameters satisfy `s,c,d ∈ [0,1]`. Write `k = 1-c-d` and `q(x) = c+k*x`.
-- `H` is `Real.binEntropy`, in nats, with `H(0)=H(1)=0`.
-- For `x ∈ [0,1]` and `y ∈ (0,1)`, the finite Bernoulli divergence is
-  `D(x || y) = -H(x) - x*log(y) - (1-x)*log(1-y)`.
-  Prove its agreement with the paper's logarithm-of-ratio formula.
-  Values of this real formula outside its domain do not model infinite KL.
-- `J(s,c,d) = H(q(s)) - (1-s)*H(c) - s*H(d)`.
-- If `s ∈ (0,1)` and `q(s) ∈ (0,1)`, define `S` by the supremum in (2.2),
-  over `x ∈ [0,1]` with `x ≠ s`. Otherwise set `S=0`, as in the paper.
-  Prove nonemptiness and boundedness before applying real supremum rules.
-- `phi(t) = log(2) - H((1-sqrt(t))/2)`.
-- Independence means `s=0 ∨ s=1 ∨ c+d=1`. The deterministic-input cases
-  must remain independent regardless of an unused conditional parameter.
-- DSBS means `s=1/2 ∧ c=d`. Allow all crossover probabilities in `[0,1]`,
-  including those greater than `1/2`, and the deterministic channels.
-
-The final statements quantify over the entire parameter cube:
-
-1. `J(s,c,d) ≤ phi(S(s,c,d))`.
-2. `J(s,c,d) = phi(S(s,c,d)) ↔ Independence(s,c,d) ∨ DSBS(s,c,d)`.
+- `k(c,d) = 1-c-d`, `q(c,d,x) = c+k(c,d)x`.
+- `H` is binary entropy in nats, with `H(0)=H(1)=0`.
+- `D(x,y) = -H(x)-x log(y)-(1-x)log(1-y)`.
+  This is Bernoulli KL on `x ∈ [0,1]`, `y ∈ (0,1)`.
+- `J(s,c,d) = H(q(s))-(1-s)H(c)-sH(d)`.
+- `S` is the supremum of `D(q(x),q(s))/D(x,s)` for `x ≠ s`, with the
+  paper's zero convention for deterministic input or output.
+- `phi(t) = log(2)-H((1-sqrt(t))/2)`.
+- `Independent` means `s=0 ∨ s=1 ∨ c+d=1`.
+- `DSBS` means `s=1/2 ∧ c=d`, including crossover probabilities above `1/2`.
 
 ## Dependency graph
 
 ```mermaid
 flowchart TD
-  A[Domain and entropy identities] --> B[Equation 4.1]
-  A --> C[KL positivity, data processing, coefficient range]
-  B --> D[Cap equals supporting-tangent condition]
-  C --> D
-  A --> E[Diagonal extension and continuity]
-  C --> E
-  D --> F[Curvature and contact classification]
-  E --> F
-  F --> G[DSBS coefficient and attaining witness]
-  E --> H[Compact feasible sets and maximizers]
-  G --> H
-  F --> I[Implicit contact family and derivative signs]
-  E --> J[Boundary continuation]
+  A[Entropy and KL foundations] --> B[Equation 4.1 and exact cap characterization]
+  B --> C[Curvature and local coefficient]
+  C --> D[Diagonal extension and joint continuity]
+  D --> E[Compact cap maximizers]
+  C --> F[Distinct interior contacts]
+  D --> F
+  F --> G[Outer bitangent feasibility and uniqueness]
+  G --> H[Smooth feasible IFT family]
+  F --> H
+  A --> I[Both strict derivative signs]
+  F --> I
+  H --> J[Interior nonmerging maximizers excluded]
   I --> J
-  A --> K[Scalar inequalities, Lemma 7.1]
-  K --> L[Merging-contact bound and equality]
-  F --> L
-  H --> M[All maximizers are merging configurations]
-  I --> M
-  J --> M
-  M --> N[Theorem 2.1 and equality]
+  D --> K[Exact boundary coefficient and continuous interior path]
+  H --> L[Strict boundary improvement]
+  I --> L
+  K --> L
+  D --> M[Interior cap saturation]
+  E --> N[Every normalized maximizer merges]
+  J --> N
   L --> N
-  G --> N
-  C --> O[Endpoints and relabeling]
-  O --> N
+  M --> J
+  O[Scalar entropy inequalities] --> P[Sharp merging bound and equality]
+  P --> Q[Theorem 2.1 and complete equality]
+  N --> Q
+  R[DSBS witnesses, endpoints, relabeling] --> Q
 ```
 
-## Detailed obligations
+## Verified steps and representative declarations
 
-### A. Basic scalar API (Section 2)
+| Step | Checked declarations |
+|---|---|
+| KL positivity and data processing | `D_pos`, `D_eq_zero_iff`, `D_dataProcessing` |
+| Tangent gap and exact cap equivalence | `equation_4_1_log_ratio`, `S_le_iff_supporting_tangent` |
+| Curvature | `deriv2_entropyCurve`, `rhoSquared_eq_eta_iff`, `rhoSquared_two_roots` |
+| Actual diagonal KL limit | `tendsto_klRatio_nhdsNE` |
+| Attainment and unique merging input | `exists_extendedRatio_eq_S`, `S_eq_eta_iff`, `rhoSquared_lt_S` |
+| Joint continuity | `exists_extendedRatio_eq_rhoSquared`, `continuousAt_S_comp` |
+| Compact maximizer existence | `exists_nontrivial_normalized_maximizer` |
+| Interior contact attainment and ordering | `exists_ordered_interior_contacts` |
+| Lower support and uniqueness | `klCap_of_outer_bitangent_local`, `outer_bitangent_unique` |
+| Actual contact-system invertibility | `contactSystem_partial_isInvertible` |
+| Smoothness and exact cap preservation | `exists_feasible_contact_family` |
+| Strict input-direction sign | `informationCoords_supporting_input_curve_deriv_pos` |
+| Reflected-contact scalar sign | `contactQ_at_reflection_pos` |
+| Placement of actual contacts | `contactReflection_le_of_supporting_contact` |
+| Strict output-direction sign | `informationCoords_supporting_output_curve_deriv_neg` |
+| Exact boundary coefficient | `S_zero_right`, `S_zero_left` |
+| Unique interior continuation and limit | `existsUnique_boundary_continuation`, `tendsto_boundaryContinuationSlope` |
+| Strict boundary improvement | `boundary_improvement_zero_right` (other side by relabeling) |
+| Cap saturation | `interior_cap_maximizer_saturates` |
+| Interior maximizers merge | `interior_cap_maximizer_distinguishedInput` |
+| Boundary exclusion and full reduction | `normalized_cap_maximizer_interior`, `maximizersMerge` |
+| Scalar inequalities | `convexOn_posteriorEntropyCurve`, `phi_increment_le`, `phi_increment_eq_iff` |
+| Merging bound with the actual S | `merging_sharp_bound`, `merging_sharp_eq_iff_dsbs` |
+| Sharp attainment | `S_symmetric`, `exists_sharp_cap_witness` |
+| Original target and optimum | `mainTheorem`, `sharp_bound`, `sharp_equality_iff`, `fixed_cap_optimum` |
 
-Prove `q(x) ∈ [0,1]` on the parameter cube, and prove the relevant strict
-interior statements. Record `H(1-x)=H(x)` and
-`H'(y)=log(1-y)-log(y)` for `0<y<1`. Establish the algebraic equivalence
-of the two forms of Bernoulli KL, including test inputs `x=0` and `x=1`.
+## Alternative arguments in the formal proof
 
-### B. Tangent gap (Section 4.1, equation (4.1))
+The development follows the paper's reduction while using several equivalent
+arguments that fit the available analysis library:
 
-For `0<s<1` and `0<q(s)<1`, prove the entropy identity
-`H(x)-H(s)-H'(s)*(x-s) = -D(x || s)` for `x ∈ [0,1]`.
-For every real `lambda`, let `F(x)=H(q(x))-lambda*H(x)` and
-`T_s(x)=F(s)+F'(s)*(x-s)`. Use the chain rule and
-`q(x)-q(s)=k*(x-s)` to prove
+1. Closed cap sublevel sets follow directly from continuity of fixed-test-input
+   KL inequalities. Maximizer existence therefore does not presuppose the
+   joint diagonal-ratio continuity theorem.
+2. The local comparison `rhoSquared ≤ S` follows from strict local concavity
+   contradicting the supporting tangent. The actual quotient limit is also
+   proved separately, using l'Hôpital's theorem twice.
+3. A twofold Rolle argument represents the extended KL ratio by curvature at
+   an intermediate input. This gives joint continuity, including simultaneous
+   movement of the reference input, test input, and channel.
+4. Global support of an outer common tangent follows from strict convexity
+   on the outer branches and concavity between the curvature roots. This
+   supplies a local open-condition criterion for IFT feasibility.
+5. The `c ≤ d` derivative sign follows from Bernoulli KL asymmetry and
+   logarithmic inequalities, without the integral calculation in (C.4).
+6. The decrease of the hyperbolic function A* and positivity in (C.8) are
+   proved by elementary derivatives. Odds-coordinate algebra identifies
+   this expression with the actual reflected-contact Q.
+7. For `c ≥ d`, the reflected entropy secant proves the supporting-contact
+   placement inequality without the integral primitive argument in C.4.
+8. On a one-zero-transition channel, strict curvature growth and compact
+   ratio attainment force the maximizing test input to the endpoint. This
+   yields the exact boundary coefficient without monotone l'Hôpital theory.
+9. The continuous boundary continuation is locally identified with the
+   smooth IFT family by uniqueness of its coefficient level. The strict
+   output derivative and endpoint limit then give a strict improvement.
 
-`F(x)-T_s(x) = lambda*D(x || s)-D(q(x) || q(s))`.
+## Final assembly and equality
 
-The derivative must be the actual derivative of `F`, not merely a name for
-an assumed slope. The identity itself needs no positivity assumption on
-`lambda` and no restriction to positively correlated channels.
+For every cap `0 < lambda < 1`, a normalized maximizer exists and is
+nondegenerate. Strict boundary improvement makes its channel interior.
+Interior cap saturation and exclusion of distinct contacts force its input
+to the distinguished configuration. There the exact coefficient is `eta`,
+and the posterior-entropy argument proves the desired `phi` bound.
 
-### C-D. Coefficient basics and cap equivalence (Sections 2 and 4.1)
+A DSBS attains every cap. Equality for any source makes that source a cap
+maximizer, so the merging equality conditions force it to be DSBS. Coefficient
+zero is precisely independence; coefficient one is handled by the entropy
+maximum characterization. Output relabeling covers negative channel slope.
 
-For nondegenerate marginals, prove `D(x || s)>0` when `x≠s`, binary
-data processing `D(q(x) || q(s))≤D(x || s)`, and `0≤S≤1`.
-For `lambda≥0`, prove equivalence of `S≤lambda` and the universal KL
-inequality on `[0,1]`. Combine it with B to get the supporting-tangent
-characterization. Handle `x=s` explicitly when passing between forms.
+## Trust and remaining extensions
 
-### E-H. Continuity, contact classification, and existence (Appendices A-B)
+All 44 source modules are built. `Audit.lean` guards 80 axiom lists, including
+the final unconditional theorem and its direct corollaries. Only the standard
+`propext`, `Classical.choice`, and `Quot.sound` appear. No added axioms,
+`sorry`, or native decision shortcuts stand in for mathematical arguments.
 
-Extend the ratio on the diagonal by
-`R(s,c,d;s)=k^2*s*(1-s)/(q(s)*(1-q(s)))`. Prove joint continuity where
-the reference marginals are interior, uniformly with test input in `[0,1]`.
-Deduce `S=max R` there and continuity of `S`. Do not assert global
-continuity at deterministic marginals. Instead use `S=0` there and the
-interior continuity to prove closed sublevel sets for `lambda≥0`.
-
-For an interior normalized channel (`c>0`, `d>0`, `c+d<1`), prove the
-unimodality of `rhoSquared(x)=k^2*x*(1-x)/(q(x)*(1-q(x)))` and formulas
-(4.3)-(4.4) for `s0` and `eta`. Establish `S(s)=eta ↔ s=s0`.
-For `0<lambda<eta`, construct unique contacts
-`0<u<alpha<s0<beta<v<1`, their lower supporting common tangent, and
-the classification `S(s)=lambda ↔ s=u ∨ s=v` for interior inputs.
-
-Formal details to supply: endpoint extensions or one-sided limits for the
-outer inverse branches in Appendix B; strict convexity despite one zero
-of the second derivative; and compactness of the extended ratio when
-deducing a strict supremum bound from pointwise strict inequalities.
-
-The symmetric channel with `s=1/2` and `c=d=(1-sqrt(lambda))/2` has
-`S=lambda` and `J=phi(lambda)`. Prove this witness independently of the
-maximizer argument. Then establish Lemma 3.1: the cap-feasible set in
-`{(s,c,d) ∈ [0,1]^3 : c+d≤1}` is nonempty and compact, `J` attains its
-maximum, and positive-cap maximizers have nondegenerate marginals and `k>0`.
-
-### I. Feasible perturbations (Section 5 and Appendix C)
-
-In coordinates `(s,q,k)`, write `c=q-ks`, `d=1-q-k(1-s)` and
-`G=D(q+k(r-s) || q)-lambda*D(r || s)`. At distinct contacts, prove
-`G=G_r=0`, `G_k>0`, `G_rr<0`, and the invertibility of the derivative
-of `(G,G_r)` with respect to `(k,r)`.
-Apply the implicit function theorem; preserve the interior-channel and
-contact-order inequalities in a neighborhood. Use the contact classification
-to conclude that the resulting family preserves the exact `S=lambda`.
-
-Prove (C.1)-(C.3), then the two signs in Proposition 5.1. In C.4, supply
-the domain, existence, uniqueness, and differentiability of the branch
-`u_+=f(u_-)`; justify integration by parts and substitutions; prove the
-strict monotonicity used in (C.10)-(C.11). These are substantial custom
-analysis lemmas. Conclude an actual nearby feasible point has larger `J`.
-
-### J. Boundary improvement (Section 6 and Appendix D)
-
-For `0<s,c<1`, prove `S(s,c,0)=log(c+(1-c)s)/log(s) ∈ (0,1)`.
-The weighted-average monotonicity arguments in Appendix D require proofs.
-For `s<q<q0`, construct the unique interior `k0(q)` with this same cap.
-Prove its continuity, its limit at `q0`, and its local smoothness using I.
-Apply the negative `q` derivative and the boundary limit to obtain a strict
-improvement. Transfer the result to `c=0` by simultaneous input/output
-relabeling. The cases `c=d=0` and `c+d=1` remain separate.
-
-### K-L. Scalar inequalities and merging bound (Section 7 and Appendix E)
-
-Prove convexity on `[0,1]` of `B(x)=H((1-sqrt(1-x^2))/2)`, including
-continuity at both endpoints. For `0<eta<1` and `r∈[0,1]`, prove
-`phi(eta+(1-eta)*r)-phi(r)≤phi(eta)`, with equality exactly when `r=0`.
-Treat the differentiability and limiting arguments at `r=0,1` explicitly.
-
-Use two-point Jensen for the two posterior probabilities, and prove
-`E[2*sqrt(P*(1-P))]=2*sqrt(s*(1-s)*(1-eta))` by finite algebra.
-Derive the posterior-entropy bound; at `s=s0`, identify equality with
-`s0=1/2` and then `c=d`. A bound using `eta` alone is not the final result.
-
-### M-O. Assembly and equality (Sections 2.1, 8, and 9)
-
-Prove invariance of `J,S` under output relabeling and simultaneous relabeling.
-For `0<lambda<1`, use H and J to place a maximizer in the interior.
-Increasing `k` at fixed `(s,q)` proves cap saturation; I excludes distinct
-contacts. Thus every maximizer has `s=s0` and `S=eta=lambda`.
-Apply L and the DSBS witness, then set `lambda=S` for an arbitrary pair.
-
-Handle `S=0`, `S=1`, deterministic marginals, and `k<0` separately.
-For equality at an interior cap, show the original point is itself a cap
-maximizer and use the classification. Prove both directions of the equality
-statement, not just necessity. This completes the scalar Theorem 2.1.
-
-## Development order and acceptance checks
-
-1. Compile definitions, target propositions, and B without placeholder proofs.
-2. Establish C-D and K; attempt Lemma C.2 early to test the hardest analysis.
-3. Develop E-F, I, and K-L as separate modules once interfaces stabilize.
-4. Add the DSBS witness, compactness, boundary continuation, and assembly.
-5. Audit the bound and equality theorem with `#print axioms`; require no
-   `sorryAx` or added mathematical axioms. Rebuild from pinned dependencies.
-6. Review the formal statement against the paper, including all endpoints.
-
-Any formalization of Section 10 must additionally prove or import appropriate
-tensorization and data-processing results, and connect the scalar coefficient
-to their probability-theoretic definition. That extension is not implied by
-completion of equation (4.1).
+The scalar main theorem is complete. An explicit arbitrary probability-space
+bridge and the Section 10 tensorization/Boolean-function corollary remain
+separate extensions. Contact existence is established at every nonmerging
+source's actual cap; a standalone arbitrary-cap version of all of Lemma 4.1
+is not required by, or claimed as part of, this certificate.

@@ -1,70 +1,46 @@
 # BinaryPairBound
 
-Lean formalization of Qianmian Guo, *A Sharp Mutual Information Bound for
-Binary Pairs*, arXiv:2611.02392v1 (2 November 2026).
+Lean verification of the **complete scalar form of Theorem 2.1** in
+Qianmian Guo, *A Sharp Mutual Information Bound for Binary Pairs*,
+arXiv:2611.02392v1 (2 November 2026).
 
-This project starts the verification; it does **not** yet prove Theorem 2.1.
-The inequality and its equality classification are recorded as definitions
-of propositions in `BinaryPairBound/Specification.lean`. They are not axioms
-or theorems with unfinished proofs.
+The original theorem specification is now proved, including its complete
+equality classification:
 
-## Verified scope
+\[
+J(s,c,d)\leq\phi(S(s,c,d)),\qquad
+J(s,c,d)=\phi(S(s,c,d))\iff
+\mathrm{Independent}(s,c,d)\lor\mathrm{DSBS}(s,c,d).
+\]
 
-The current development proves substantial parts of the paper, but the
-main theorem is **not complete**. All results listed below have actual Lean
-proofs; no unfinished proof or extra axiom stands in for the missing core.
+The statement covers all `s,c,d ∈ [0,1]`, deterministic marginals, and both
+signs of the channel slope. There are no `sorry` proofs or additional axioms.
 
-| Part | Checked results / files |
-|---|---|
-| Section 4.1 | Equation (4.1), actual derivatives, endpoint test inputs; `TangentGap.lean` |
-| KL foundations | Positivity, equality, binary data processing; `Divergence.lean` |
-| Exact coefficient | `0 ≤ S ≤ 1`, supremum/cap/supporting-tangent equivalences; `Contraction.lean` |
-| Information and endpoints | Independence, entropy maximum equality, cap 0/1; `Information.lean`, `Endpoints.lean` |
-| Relabeling | Both `J` and `S` invariant under binary label changes; `Symmetry.lean` |
-| Section 4.2 | Actual second derivative, exact curvature maximum and distinguished input; `Curvature.lean` |
-| Coefficient comparisons | `rhoSquared ≤ S ≤ eta`, equality at the distinguished input; `ChannelCap.lean`, `LocalCoefficient.lean` |
-| Lemma 7.1 | Convexity of the posterior-entropy curve; scalar increment bound and equality; `ScalarEntropy.lean` |
-| Proposition 7.2 | Finite Bayes identity, Jensen bound, sharp bound and DSBS equality at the distinguished input; `Merging.lean`, `MergingSharp.lean` |
-| Symmetric sources | Exact `S(1/2,c,c)=(1-2c)^2`, sharp witnesses for every cap, sufficiency of both equality families; `SymmetricSource.lean` |
-| Existence | Closed cap sets, compact optimization, nondegenerate normalized maximizers; `Compactness.lean`, `Optimization.lean` |
-| Section 5 calculations | Four actual contact-gap partial derivatives and conditional implicit-slope identities; `DivergenceCalculus.lean`, `Perturbation.lean` |
-| Final assembly | `MaximizersMerge → MainTheorem`; `Main.lean` |
+## Main entry points
 
-The compactness argument proves closedness directly from the fixed-test-input
-KL inequalities. It does not assume global continuity of `S` at deterministic
-marginals. The local comparison `rhoSquared ≤ S` uses a strict-concavity
-contradiction to the supporting tangent, without assuming a quotient limit.
+In [`BinaryPairBound/MainProof.lean`](BinaryPairBound/MainProof.lean):
 
-## Remaining core
+```lean
+BinaryPairBound.mainTheorem : BinaryPairBound.MainTheorem
+BinaryPairBound.sharp_bound
+BinaryPairBound.sharp_equality_iff
+BinaryPairBound.fixed_cap_optimum
+```
 
-`Main.lean` defines the **unproved** proposition `MaximizersMerge`: every
-normalized maximizer under a cap `0 < lambda < 1` has an interior channel and
-its input equals `distinguishedInput`. The checked conditional theorem
-`mainTheorem_of_maximizersMerge` shows that this statement suffices for the
-unchanged original inequality **and** its full equality classification.
-It is not a completed proof of `MainTheorem`.
-
-The remaining work includes the distinct-contact classification, existence
-and feasibility of the implicit perturbation family, Proposition 5.1's strict
-information derivative signs, boundary improvement, and the cap-saturation
-argument. See [the proof blueprint](blueprint.md) for the dependencies.
-
-In particular, `J_le_phi_eta` alone does not prove `J ≤ phi(S)`, and the
-implicit-slope identities do not establish an implicit family.
+`mainTheorem` has **no remaining proof premise**. It inhabits the original
+`MainTheorem` specification. `sharp_bound` and `sharp_equality_iff` expose
+its two conclusions directly; `fixed_cap_optimum` proves equation (3.1).
+The former conditional assembly in `Main.lean` is retained as a reusable
+lemma; its `MaximizersMerge` premise is discharged in `MainProof.lean`.
 
 ## Verification
 
-The project is checked with Lean 4.35.0 and mathlib 4.35.0. `Audit.lean`
-guards the axiom lists for the major milestones: only `propext`,
-`Classical.choice`, and `Quot.sound` are accepted. These checks do not remove
-explicit hypotheses from conditional theorems. The audit deliberately prints
-`MaximizersMerge → MainTheorem` to make the remaining premise visible.
-
-## Build and inspect
-
-Pinned versions: Lean `v4.35.0`, mathlib `v4.35.0` (commit
-`56a005855ea17e0b0958f73ec801ae140b0a1679`). Keep `lean-toolchain`,
-`lakefile.toml`, and the generated `lake-manifest.json` together.
+The project uses Lean **4.35.0** and mathlib **4.35.0**, pinned to mathlib
+commit `56a005855ea17e0b0958f73ec801ae140b0a1679` in `lake-manifest.json`.
+All **44 modules** are imported by the root module and built. `Audit.lean`
+contains **80 guarded axiom checks**, including the final unconditional
+main theorem, bound, equality classification, and constrained optimum.
+Only `propext`, `Classical.choice`, and `Quot.sound` are accepted.
 
 From this project directory:
 
@@ -72,22 +48,17 @@ From this project directory:
 ./scripts/check.sh
 ```
 
-This builds the root module and runs `Audit.lean`. The audit guards its
-expected axiom lists: an unexpected assumption causes the check to fail.
-The output of the last successful check is saved in `verification.log`.
-To run either step alone:
+This builds the project and runs the guarded audit. The last successful
+output is recorded in [`verification.log`](verification.log). The individual
+steps are:
 
 ```sh
 ./scripts/lake.sh build
 ./scripts/lake.sh env lean Audit.lean
 ```
 
-The wrapper uses the optional project-local Lean installation in
-`.tooling/elan`; otherwise it uses `lake` from your normal installation.
-The local compiler and dependency caches are excluded from version control.
-
-On a fresh checkout, install Lean using the official guide at
-<https://lean-lang.org/install/>, then download the precompiled library:
+On a fresh checkout, install Lean using the [official guide](https://lean-lang.org/install/),
+then run:
 
 ```sh
 ./scripts/lake.sh exe cache get
@@ -95,33 +66,47 @@ On a fresh checkout, install Lean using the official guide at
 ```
 
 Open the entire project folder in VS Code with the Lean 4 extension.
-For the installation created here, a terminal can use the local tools with:
+The wrapper uses `.tooling/elan` when a project-local installation exists;
+otherwise it uses the normal `lake` installation. Compiler/dependency caches
+are excluded from version control. No global shell settings are changed.
 
-```sh
-export ELAN_HOME="$PWD/.tooling/elan"
-export PATH="$ELAN_HOME/bin:$PATH"
-```
+## Proof map
 
-Launch your editor from that terminal to inherit these settings, or use a
-standard Lean installation. No global shell settings are changed by this
-project's local setup.
+| Paper step | Main modules |
+|---|---|
+| Definitions, KL identities, equation (4.1) | `Definitions`, `Entropy`, `TangentGap`, `Divergence` |
+| Exact coefficient, endpoints, relabeling | `Contraction`, `Information`, `Endpoints`, `Symmetry` |
+| Curvature and diagonal ratio | `Curvature`, `ChannelCap`, `LocalCoefficient`, `RatioContinuity` |
+| Joint continuity and compact maximizers | `JointRatioContinuity`, `Compactness`, `Optimization` |
+| Distinct contacts and global support | `ContactGeometry`, `ContactEndpoints`, `ContactFeasibility` |
+| Smooth feasible contact family | `DivergenceCalculus`, `Perturbation`, `ContactJacobian`, `ContactFamily` |
+| Both strict information-derivative signs | `InformationPerturbation`, `Hyperbolic`, `ContactMonotonicity`, `ContactSymmetry`, `ReflectedSign`, `ContactPlacement`, `OutputDirection`, `ContactSigns` |
+| Boundary formula, continuation, strict improvement | `BoundaryCoefficient`, `BoundaryContinuation`, `BoundaryImprovement` |
+| Cap saturation and maximizers merge | `CapSaturation`, `MaximizerVariations`, `InteriorMaximizer`, `MainProof` |
+| Scalar entropy inequalities and merging bound | `ScalarEntropy`, `Merging`, `MergingSharp` |
+| DSBS attainment and final assembly | `SymmetricSource`, `Reduction`, `Specification`, `Main`, `MainProof` |
 
-## Mathematical scope
+The [proof blueprint](blueprint.md) records the dependencies and the
+alternative arguments used in the formal proof.
+
+## Scope and conventions
 
 - `H` is mathlib's binary entropy in nats.
 - `D x y` is finite Bernoulli KL for `x ∈ [0,1]` and `y ∈ (0,1)`.
-  Its total real-valued extension is not extended-real KL at deterministic
-  reference distributions.
-- `S` is the distribution-dependent supremum from (2.2), with zero for
-  deterministic input or output. Its bounds and cap characterization are
-  proved in `Contraction.lean`.
-- The theorem specifications include all `s,c,d ∈ [0,1]`, deterministic
-  inputs, and both signs of the channel slope. DSBS crossover is not
-  restricted to at most `1/2`.
-- Theorem 2.1, the probability-theoretic interpretation, and the Section 10
-  corollary remain unproved. The blueprint records the work still needed.
+  Its total real extension is not extended-real KL at deterministic reference
+  distributions. All relevant uses supply the required domain hypotheses.
+- `S` is the distribution-dependent supremum from equation (2.2), with zero
+  for deterministic input or output. Its finiteness, domain bounds,
+  supporting-tangent characterization, and required continuity are proved.
+- Independence includes deterministic inputs. DSBS means `s=1/2 ∧ c=d`,
+  with crossover probability anywhere in `[0,1]`.
+- An explicit bridge to arbitrary probability-space/random-variable APIs,
+  and the tensorization/Boolean-function consequence in Section 10, are
+  separate extensions and are **not** claimed here.
+- Contact existence is proved at the actual cap `S(s)` for every nonmerging
+  interior source, which is sufficient for the main theorem. A separate
+  arbitrary-cap formulation of every assertion in Lemma 4.1 is not claimed.
 
 Source PDF SHA-256:
 `dae0f9de685a17492b61838adb0ae72a1a344b518c4456bf55584328614dbe22`.
-
-The source PDF and synced project reference files are unchanged.
+The PDF and synced project reference files are unchanged.
