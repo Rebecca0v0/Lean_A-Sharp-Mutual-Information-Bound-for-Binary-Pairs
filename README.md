@@ -8,11 +8,14 @@ arXiv:2611.02392v1 (2 November 2026).
 The original scalar theorem specification is proved, including its complete
 equality classification:
 
-\[
-J(s,c,d)\leq\phi(S(s,c,d)),\qquad
+$$
+J(s,c,d)\leq\phi(S(s,c,d)).
+$$
+
+$$
 J(s,c,d)=\phi(S(s,c,d))\iff
 \mathrm{Independent}(s,c,d)\lor\mathrm{DSBS}(s,c,d).
-\]
+$$
 
 The statement covers all `s,c,d ∈ [0,1]`, deterministic marginals, and both
 signs of the channel slope. There are no `sorry` proofs or additional axioms.
@@ -26,9 +29,9 @@ equal to the usual supremum of KL ratios over supported alternative input laws.
 Section 10 is proved for every finite-alphabet source, every number of IID
 observations, and every pair of Boolean functions:
 
-\[
+$$
 I(f(X^n);g(Y^n))\leq\phi(s^*(X;Y)).
-\]
+$$
 
 For a DSBS this gives `I(f(Xⁿ);g(Yⁿ)) ≤ I(X;Y)`. Tensorization and data
 processing are proved, including zero-mass atoms; they are not supplied as
