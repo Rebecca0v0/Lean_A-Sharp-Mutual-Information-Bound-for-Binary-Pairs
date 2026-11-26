@@ -62,9 +62,6 @@ s^{\ast}(P,K)
 
 Here $Q$ ranges over probability laws on the same input alphabet.
 **If no $Q$ satisfies the constraint, set $s^{\ast}(P,K)=0$.**
-The constraint already excludes $Q=P$; $P$ need not have full support.
-A deterministic input has no admissible $Q$. For a binary input, this is
-exactly the case where $P$ is not full support.
 
 Lean proves that this coefficient equals the paper's $S(s,c,d)$ under the
 binary parametrization above, including deterministic cases.
