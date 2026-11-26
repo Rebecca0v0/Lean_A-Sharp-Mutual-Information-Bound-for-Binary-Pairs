@@ -56,7 +56,7 @@ $K$, use the definition ([Polyanskiy–Wu, equation (5)](https://arxiv.org/pdf/1
 
 ```math
 s^{\ast}(P,K)
-=\sup_{Q:\,0<D(Q\Vert P)<\infty}
+=\sup_{Q:\,0\lt D(Q\Vert P)\lt\infty}
 \frac{D(QK\Vert PK)}{D(Q\Vert P)}.
 ```
 
@@ -72,7 +72,7 @@ binary parametrization above, including deterministic cases.
 <details>
 <summary>Lean definitions and proof locations</summary>
 
-On finite alphabets, $0<D(Q\Vert P)<\infty$ is encoded by
+On finite alphabets, $0\lt D(Q\Vert P)\lt\infty$ is encoded by
 `Supported Q P` and `Q ≠ P`. `standardKLCoefficient` uses this domain and an
 explicit zero value when it is empty. Its equality with the internal
 coefficient used by the proofs is verified in `FiniteKLStandard`.
