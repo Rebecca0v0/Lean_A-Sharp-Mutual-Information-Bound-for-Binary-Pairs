@@ -149,14 +149,22 @@ These corollaries cover every $n\geq0$, with the empty sample handled as well.
 
 **Lean entry points:**
 
-| Statement | File and declarations |
+The first two rows are the corollaries; the last two are the coefficient
+properties used to prove them.
+
+| Statement and meaning | File and declarations |
 |---|---|
-| Full-support source bound with the direct AGKN definition | [FiniteKLAGKN.lean](BinaryPairBound/FiniteKLAGKN.lean): `FiniteInfo.iid_binary_bound_agkn` |
-| General finite-source bound | [Section10.lean](BinaryPairBound/Section10.lean): `FiniteInfo.iid_binary_bound`, `FiniteInfo.iid_joint_binary_bound` |
-| DSBS corollary | [Section10.lean](BinaryPairBound/Section10.lean): `FiniteInfo.iid_dsbs_binary_bound`, `FiniteInfo.iid_dsbs_binary_bound_entropy` |
-| Exact tensorization | [FiniteTensorization.lean](BinaryPairBound/FiniteTensorization.lean): `FiniteInfo.coefficient_power_succ` |
-| Data processing | [FiniteProcessing.lean](BinaryPairBound/FiniteProcessing.lean); `FiniteInfo.iid_binary_contraction_le` in [Section10.lean](BinaryPairBound/Section10.lean) |
-| IID observations on any probability space | [Section10RandomVariables.lean](BinaryPairBound/Section10RandomVariables.lean): `iid_joint_random_variable_bound`, `iid_dsbs_random_variable_bound_source` |
+| **General finite source:** $I(f(X^n);g(Y^n))\leq\phi(s^{\ast}(X;Y))$. The bound depends only on the joint distribution of $(X,Y)$ and holds for every sample size and every binary-valued $f,g$. | [Section10.lean](BinaryPairBound/Section10.lean): `FiniteInfo.iid_binary_bound`, `FiniteInfo.iid_joint_binary_bound` |
+| **DSBS source:** $I(f(X^n);g(Y^n))\leq I(X;Y)$. The two binary outputs share at most as much mutual information as one original source pair. | [Section10.lean](BinaryPairBound/Section10.lean): `FiniteInfo.iid_dsbs_binary_bound`, `FiniteInfo.iid_dsbs_binary_bound_entropy` |
+| **Tensorization:** $s^{\ast}(X^n;Y^n)=s^{\ast}(X;Y)$ for $n\geq1$. Independent repetition leaves the directed KL contraction coefficient unchanged. | [FiniteTensorization.lean](BinaryPairBound/FiniteTensorization.lean): `FiniteInfo.coefficient_power_succ` |
+| **Data processing:** $s^{\ast}(f(X^n);g(Y^n))\leq s^{\ast}(X^n;Y^n)$. Applying $f$ and $g$ separately cannot increase the directed KL contraction coefficient. | [FiniteProcessing.lean](BinaryPairBound/FiniteProcessing.lean): `FiniteInfo.processedLaw_contraction_le` |
+
+The same two bounds also apply to measurable random variables already defined
+on any probability space, assuming the pairs $(X_i,Y_i)$ are IID.
+[Section10RandomVariables.lean](BinaryPairBound/Section10RandomVariables.lean)
+matches their four binary-output probabilities with those used in
+`Section10.lean`, then applies the bounds above. Its two entry points are
+`iid_joint_random_variable_bound` and `iid_dsbs_random_variable_bound_source`.
 
 ## 4. Directionality of the contraction coefficient
 
