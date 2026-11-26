@@ -65,9 +65,7 @@ symbol $a$. This is what **full support** means. Then
 s^{\ast}(P,K)=\sup_{Q\ne P}\frac{D(QK\Vert PK)}{D(Q\Vert P)}.
 ```
 
-The denominator measures the change in the input distribution; the numerator
-measures the resulting change in the output distribution, both using KL
-divergence. The coefficient is the supremum of this ratio over all choices of
+The coefficient is the supremum of this ratio over all choices of
 $Q\ne P$ on the same input alphabet. **$Q$ itself need not have full support.**
 Full support of $P$ makes the denominator finite; $Q\ne P$ makes it positive.
 
