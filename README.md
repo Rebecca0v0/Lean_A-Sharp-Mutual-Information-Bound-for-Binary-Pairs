@@ -49,18 +49,40 @@ Here $H$ is binary entropy in nats. Independence of random variables is
 mathlib's standard `IndepFun`; the DSBS condition is equality of opposite
 joint probabilities: $p_{00}=p_{11}$ and $p_{01}=p_{10}$.
 
-The coefficient correspondence is also proved for general finite alphabets.
-For an input law $P$ and a channel $K$, the coefficient used internally in Lean
-is proved equal to the usual expression
+**Which definitions of the contraction coefficient are being connected?**
+The project uses an internal definition, `FiniteInfo.coefficient`, based on
+entropy ratios of nonnegative functions. Such functions represent changes of
+input law through $Q(x)=P(x)f(x)$ after normalization. The connection proved in
+[FiniteKL.lean](BinaryPairBound/FiniteKL.lean) identifies this definition with
+the KL-ratio formulation for finite alphabets.
+
+For an input law $P$ and a channel $K$, the usual mathematical definition is
 
 ```math
-\sup_{Q\ll P}\frac{D(QK\Vert PK)}{D(Q\Vert P)}.
+s^{\ast}(P,K)=\sup_{\substack{Q\ll P\\Q\ne P}}
+\frac{D(QK\Vert PK)}{D(Q\Vert P)}.
 ```
 
-Here $PK$ and $QK$ are the output laws through the same channel, and $Q\ll P$
-means that $Q$ assigns zero probability wherever $P$ does. The unchanged law
-$Q=P$ contributes zero by convention. This identifies the formal coefficient
-with the usual KL coefficient; for binary laws it is exactly $S(s,c,d)$.
+Here $PK$ and $QK$ are the output laws through the same channel. The two
+restrictions on $Q$ have different purposes:
+
+- $Q\ll P$: $Q$ assigns zero probability wherever $P$ does.
+- $Q\ne P$: the input law actually changes, so the KL denominator is positive.
+
+For a deterministic input law there is no supported alternative $Q\ne P$;
+the coefficient is defined to be zero in that case.
+
+**Internal zero convention.** The exact statement `coefficient_eq_sup_KL`
+uses a set of KL ratios that also includes $Q=P$. Lean's real division assigns
+zero to that extra $0/0$ term. Adding this zero does not change the supremum
+of the nonnegative ratios when alternatives exist, and gives zero when none
+exist. This is an implementation convention; the ordinary KL ratio at $Q=P$
+is undefined.
+
+Finally, for binary input and output, `FiniteInfo.coefficient_binary` proves
+that this finite-alphabet coefficient equals the paper's scalar $S(s,c,d)$.
+These are the two connections: the internal entropy formulation to KL ratios,
+and the binary KL coefficient to the paper's parameters.
 
 **Lean entry points** (names below are in the `BinaryPairBound` namespace):
 
