@@ -197,9 +197,9 @@ $s^{\ast}(W;Z)=s^{\ast}(Z;W)=t$.
 
 | Statement | File and declarations |
 |---|---|
-| $I(W;Z)\leq\phi(\min\{a,b\})$ | [ReverseChannel.lean](BinaryPairBound/ReverseChannel.lean): `bidirectional_bound`; [RandomVariableDirections.lean](BinaryPairBound/RandomVariableDirections.lean): `binary_random_variable_bidirectional_bound` |
-| $I(W;Z)=\phi(\min\{a,b\})$ $\iff (W\perp Z)\lor\mathrm{DSBS}(W,Z)$ | [ReverseChannel.lean](BinaryPairBound/ReverseChannel.lean): `bidirectional_equality_iff` |
-| $a\ne b\ \Longrightarrow$ $I(W;Z)\lt\phi(\min\{a,b\})$ | [ReverseChannel.lean](BinaryPairBound/ReverseChannel.lean): `bidirectional_strict_of_ne`, `prescribed_bidirectional_strict`; [RandomVariableDirections.lean](BinaryPairBound/RandomVariableDirections.lean): `binary_random_variable_bidirectional_strict` |
+| $I(W;Z)\leq\phi(\min(a,b))$ | [ReverseChannel.lean](BinaryPairBound/ReverseChannel.lean): `bidirectional_bound`; [RandomVariableDirections.lean](BinaryPairBound/RandomVariableDirections.lean): `binary_random_variable_bidirectional_bound` |
+| $I(W;Z)=\phi(\min(a,b))$ $\iff (W\perp Z)\lor\mathrm{DSBS}(W,Z)$ | [ReverseChannel.lean](BinaryPairBound/ReverseChannel.lean): `bidirectional_equality_iff` |
+| $a\ne b\ \Longrightarrow$ $I(W;Z)\lt\phi(\min(a,b))$ | [ReverseChannel.lean](BinaryPairBound/ReverseChannel.lean): `bidirectional_strict_of_ne`, `prescribed_bidirectional_strict`; [RandomVariableDirections.lean](BinaryPairBound/RandomVariableDirections.lean): `binary_random_variable_bidirectional_strict` |
 | $\forall t\in[0,1],$ $\max_{a=b=t}I(W;Z)=\phi(t)$, attained by a DSBS | [ReverseChannel.lean](BinaryPairBound/ReverseChannel.lean): `equal_directed_cap_optimum` |
 
 ## 5. Verification
