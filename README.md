@@ -51,109 +51,31 @@ Here $H$ is binary entropy in nats. Independence of random variables is
 mathlib's standard `IndepFun`; the DSBS condition is equality of opposite
 joint probabilities: $p_{00}=p_{11}$ and $p_{01}=p_{10}$.
 
-**The coefficient for a finite alphabet: $P$ may have zeros.** Let $P$ be an
-input distribution and $K$ a fixed channel. We compare $P$ with another input
-distribution $Q$ on the same finite alphabet. Passing both through $K$ gives
-the output distributions $PK$ and $QK$.
-
-Neither $P$ nor $Q$ is required to have full support. The distributions $Q$
-used in the definition must satisfy two conditions:
-
-1. **$Q\ne P$:** the input distribution must actually change.
-2. **$P(a)=0\Rightarrow Q(a)=0$ for every symbol $a$:** $Q$ may redistribute
-   probability only among symbols that are possible under $P$.
-
-The second condition is denoted by $Q\ll P$. It guarantees that $D(Q\Vert P)$
-is finite; together with $Q\ne P$, it makes this denominator strictly positive.
-For example, with $P=(1/2,1/2,0)$, the law $Q=(1,0,0)$ is allowed, while
-$Q=(0,0,1)$ is excluded because $D(Q\Vert P)=\infty$.
-
-When at least one such $Q$ exists, define
+**KL contraction coefficient.** For a finite input law $P$ and a channel
+$K$, use the definition ([Polyanskiy–Wu, equation (5)](https://arxiv.org/pdf/1508.06025#page=5))
 
 ```math
 s^{\ast}(P,K)
-=\sup_{\substack{Q\ne P\\Q\ll P}}
+=\sup_{Q:\,0<D(Q\Vert P)<\infty}
 \frac{D(QK\Vert PK)}{D(Q\Vert P)}.
 ```
 
-**If no such $Q$ exists, define $s^{\ast}(P,K)=0$.** This is an explicit
-convention for the empty case. The unchanged law $Q=P$ is excluded throughout.
+Here $Q$ ranges over probability laws on the same input alphabet.
+**If no $Q$ satisfies the constraint, set $s^{\ast}(P,K)=0$.**
+The constraint already excludes $Q=P$; $P$ need not have full support.
+A deterministic input has no admissible $Q$. For a binary input, this is
+exactly the case where $P$ is not full support.
 
-**Why deterministic inputs give zero.** Suppose the input is always $0$, so
-$P=(1,0)$ on the alphabet $\{0,1\}$. The support condition forces $Q(1)=0$,
-and hence $Q(0)=1$. The only supported law is therefore $Q=P$. Once $Q=P$ is
-excluded, no candidate remains, so the zero convention above applies.
-The same argument works for an input concentrated on any single symbol.
-
-A deterministic output also gives coefficient zero: every allowed $Q$
-produces $QK=PK$, so every KL numerator is zero.
-
-**Full support gives the AGKN formula.** If $P(a)>0$ at every input symbol,
-then there is no symbol with $P(a)=0$. Every $Q$ automatically satisfies
-$Q\ll P$, so the support condition removes no distribution. The formula
-simplifies to
-
-```math
-s^{\ast}(P,K)=\sup_{Q\ne P}\frac{D(QK\Vert PK)}{D(Q\Vert P)},
-```
-
-with the same zero convention if there is no alternative. This is the
-full-support setting of [AGKN, Definition 4](https://arxiv.org/pdf/1304.6133#page=2).
-Only $P$ needs full support here; $Q$ may still have zero probabilities.
-
-**Write the coefficient in the paper's binary parameters.** For the binary
-pair $W,Z$, take $P$ to be the law of $W$ and $K$ its channel to $Z$.
-When both marginals are non-deterministic, write $P=(1-s,s)$ and
-$Q=(1-x,x)$, where $0<s<1$ and $x\in[0,1]$. The channel is determined by
-$c,d$, and its output-one probability is $q(x)=c+(1-c-d)x$. Thus
-
-```math
-\begin{aligned}
-P&=\mathrm{Bern}(s), & PK&=\mathrm{Bern}(q(s)),\\
-Q&=\mathrm{Bern}(x), & QK&=\mathrm{Bern}(q(x)).
-\end{aligned}
-```
-
-Here $\mathrm{Bern}(t)$ means the distribution $(1-t,t)$. Since $P$ has full
-support, all $x\in[0,1]$ are allowed except $x=s$, which would give $Q=P$.
-Substitution gives equation (2.2) of the paper:
-
-```math
-s^{\ast}(W;Z)
-=\sup_{\substack{x\in[0,1]\\x\ne s}}
-\frac{D(\mathrm{Bern}(q(x))\Vert\mathrm{Bern}(q(s)))}
-     {D(\mathrm{Bern}(x)\Vert\mathrm{Bern}(s))}
-=S(s,c,d).
-```
-
-When either variable is deterministic, both the coefficient above and the
-paper's $S(s,c,d)$ are zero, by the cases already explained.
-
-**What Lean verifies.** The definition allowing zeros in $P$, with $Q=P$
-explicitly excluded, equals the coefficient used in the existing proofs.
-For binary pairs it equals $S(s,c,d)$, including deterministic cases. Thus
-bounds proved using $S$ apply to the coefficient defined here.
+Lean proves that this coefficient equals the paper's $S(s,c,d)$ under the
+binary parametrization above, including deterministic cases.
 
 <details>
-<summary>Lean definitions, proof locations, and the full-support special case</summary>
+<summary>Lean definitions and proof locations</summary>
 
-**General definition.** In [FiniteKLStandard.lean](BinaryPairBound/FiniteKLStandard.lean),
-`standardKLRatios` directly requires `Supported Q P` and `Q ≠ P`.
-`Supported Q P` means exactly $P(a)=0\Rightarrow Q(a)=0$.
-`standardKLCoefficient` takes the supremum of this set when it is nonempty,
-and returns zero otherwise. No full-support assumption on $P$ is required.
-This is the finite-alphabet form of the domain $0<D(Q\Vert P)<\infty$
-in [Polyanskiy–Wu, equation (5)](https://arxiv.org/pdf/1508.06025#page=5).
-
-**Connection to the proofs.** `coefficient_eq_standardKLCoefficient` proves
-that this definition equals the internal entropy-ratio coefficient. The
-support condition is essential to interpreting the implementation's
-real-valued KL sums as ordinary KL; laws with infinite KL are excluded.
-
-**Full-support special case.** [FiniteKLAGKN.lean](BinaryPairBound/FiniteKLAGKN.lean)
-also provides `agknCoefficient P K hP`, where `hP` proves that every input
-probability is positive. Its only restriction on $Q$ is `Q ≠ P`. The project
-proves that it agrees with the general definition whenever $P$ has full support.
+On finite alphabets, $0<D(Q\Vert P)<\infty$ is encoded by
+`Supported Q P` and `Q ≠ P`. `standardKLCoefficient` uses this domain and an
+explicit zero value when it is empty. Its equality with the internal
+coefficient used by the proofs is verified in `FiniteKLStandard`.
 
 **Lean entry points** (names below are in the `BinaryPairBound` namespace):
 
