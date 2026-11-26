@@ -1,6 +1,5 @@
-✔ [2735/2753] Built BinaryPairBound.SymmetricSource (2.5s)
-✔ [2752/2753] Built BinaryPairBound (2.4s)
-Build completed successfully (2753 jobs).
+✔ [2753/2754] Built BinaryPairBound (3.8s)
+Build completed successfully (2754 jobs).
 BinaryPairBound.mainTheorem : BinaryPairBound.MainTheorem
 @BinaryPairBound.sharp_bound : ∀ {s c d : ℝ},
   BinaryPairBound.Valid s c d → BinaryPairBound.J s c d ≤ BinaryPairBound.phi (BinaryPairBound.S s c d)
@@ -61,3 +60,32 @@ BinaryPairBound.mainTheorem : BinaryPairBound.MainTheorem
     BinaryPairBound.binaryMutualInfo μ W Z hW hZ <
       BinaryPairBound.phi
         (min (BinaryPairBound.binaryContraction μ W Z hW hZ) (BinaryPairBound.binaryContraction μ Z W hZ hW))
+@BinaryPairBound.FiniteInfo.coefficient_eq_standardKLCoefficient : ∀ {α : Type u_1} {β : Type u_2} [inst : Fintype α]
+  [inst_1 : Fintype β] (p : BinaryPairBound.FiniteInfo.Law α) (K : BinaryPairBound.FiniteInfo.Channel α β),
+  BinaryPairBound.FiniteInfo.coefficient p K = BinaryPairBound.FiniteInfo.standardKLCoefficient p K
+@BinaryPairBound.FiniteInfo.coefficient_eq_sup_positive_KL : ∀ {α : Type u_1} {β : Type u_2} [inst : Fintype α]
+  [inst_1 : Fintype β] (p : BinaryPairBound.FiniteInfo.Law α) (K : BinaryPairBound.FiniteInfo.Channel α β),
+  (∃ r, BinaryPairBound.FiniteInfo.Supported r p ∧ r ≠ p) →
+    BinaryPairBound.FiniteInfo.coefficient p K =
+      sSup
+        {v |
+          ∃ r,
+            BinaryPairBound.FiniteInfo.Supported r p ∧
+              0 < BinaryPairBound.FiniteInfo.relativeEntropy r p ∧
+                v =
+                  BinaryPairBound.FiniteInfo.relativeEntropy (BinaryPairBound.FiniteInfo.out r K)
+                      (BinaryPairBound.FiniteInfo.out p K) /
+                    BinaryPairBound.FiniteInfo.relativeEntropy r p}
+@BinaryPairBound.FiniteInfo.coefficient_eq_sup_KL_ne_of_fullSupport : ∀ {α : Type u_1} {β : Type u_2} [inst : Fintype α]
+  [inst_1 : Fintype β] (p : BinaryPairBound.FiniteInfo.Law α) (K : BinaryPairBound.FiniteInfo.Channel α β),
+  (∀ (a : α), 0 < p.mass a) →
+    (∃ r, r ≠ p) →
+      BinaryPairBound.FiniteInfo.coefficient p K =
+        sSup
+          {v |
+            ∃ r,
+              r ≠ p ∧
+                v =
+                  BinaryPairBound.FiniteInfo.relativeEntropy (BinaryPairBound.FiniteInfo.out r K)
+                      (BinaryPairBound.FiniteInfo.out p K) /
+                    BinaryPairBound.FiniteInfo.relativeEntropy r p}

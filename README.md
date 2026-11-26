@@ -66,6 +66,13 @@ In the paper's binary setting, $P=(1-s,s)$ has full support when $0<s<1$;
 writing $Q=(1-x,x)$ turns $Q\ne P$ into precisely $x\ne s$ in equation (2.2).
 Deterministic input or output is treated separately, with coefficient zero.
 
+The exclusion of $Q=P$ is now verified explicitly in
+[FiniteKLStandard.lean](BinaryPairBound/FiniteKLStandard.lean).
+`coefficient_eq_standardKLCoefficient` proves equality with a definition that
+excludes the unchanged input and assigns zero when no alternative exists.
+`coefficient_eq_sup_KL_ne_of_fullSupport` gives the displayed formula when
+the reference has full support and an alternative input law exists.
+
 **Connection to the paper's parameters.** For binary input and output,
 `FiniteInfo.coefficient_binary` proves that the coefficient used by the
 finite-alphabet part of the project equals the paper's $S(s,c,d)$.
@@ -83,7 +90,14 @@ KL ratios, using the following conventions.
 alphabets containing symbols with $P(x)=0$. In that setting it requires
 $Q\ll P$, meaning $P(x)=0$ implies $Q(x)=0$, written `Supported Q P` in Lean.
 This makes the KL sum finite and is equivalent to taking alternative input
-laws on the support of $P$. Under the full-support assumption above, every
+laws on the support of $P$. More generally, the standard definition tests
+laws with $0<D(Q\Vert P)<\infty$; it allows the reference law to have zeros
+([Polyanskiy–Wu, equation (5)](https://arxiv.org/pdf/1508.06025#page=5)).
+On finite alphabets, this domain is exactly $Q\ll P$ and $Q\ne P$.
+`relativeEntropy_pos_iff` proves that, under the support condition, the KL
+denominator is positive exactly when $Q\ne P$; `coefficient_eq_sup_positive_KL`
+gives the corresponding supremum formula when alternatives exist.
+Under the full-support assumption above, every
 $Q$ automatically satisfies this condition: it removes no candidate from the
 displayed definition. The current implementation uses real-valued KL sums;
 it does not interpret unsupported alternatives whose ordinary KL is infinite.
@@ -96,11 +110,14 @@ Substituting it anyway would give
 ```
 
 which is undefined in ordinary arithmetic. The internal set of test ratios
-includes this extra test, and Lean's real division assigns it zero. Adding
-one zero does not change the supremum of the nonnegative ratios when other
-tests exist. If there is no supported alternative $Q\ne P$, as for a
-deterministic input, this convention gives coefficient zero. This is an
-internal representation choice, separate from the usual definition above.
+includes this extra test, and Lean's real division assigns it zero.
+`probabilityRatios_eq_insert_standard` proves that the old test set is exactly
+the new test set with zero inserted. Boundedness and nonnegativity then prove
+that deleting this extra test preserves the coefficient. If there is no
+supported alternative $Q\ne P$, the standard definition explicitly returns
+zero; `coefficient_eq_zero_of_pointMass` proves this for every deterministic
+input and every channel. These steps are Lean proofs, including all the
+zero-probability cases.
 
 </details>
 
@@ -110,7 +127,9 @@ internal representation choice, separate from the usual definition above.
 |---|---|
 | Joint probabilities, parameters, entropy, and equality conditions | [BinaryLaw.lean](BinaryPairBound/BinaryLaw.lean): `BinaryLaw.mass00`–`BinaryLaw.mass11`, `BinaryLaw.mutualInfo_eq`, `BinaryLaw.independent_iff`, `BinaryLaw.dsbs_iff` |
 | Actual random variables and standard independence | [RandomVariables.lean](BinaryPairBound/RandomVariables.lean): `binaryLaw`, `binaryLaw.independent_iff`, `binaryMutualInfo_eq_entropy`, `binaryContraction_eq_coefficient` |
-| Usual finite-alphabet KL coefficient | [FiniteKL.lean](BinaryPairBound/FiniteKL.lean): `FiniteInfo.coefficient_eq_sup_KL` |
+| Internal entropy and supported KL ratios | [FiniteKL.lean](BinaryPairBound/FiniteKL.lean): `FiniteInfo.coefficient_eq_sup_KL` |
+| Standard coefficient excluding the unchanged law | [FiniteKLStandard.lean](BinaryPairBound/FiniteKLStandard.lean): `FiniteInfo.coefficient_eq_standardKLCoefficient`, `FiniteInfo.coefficient_eq_sup_KL_ne_of_fullSupport` |
+| Positive KL denominator and deterministic inputs | [FiniteKLStandard.lean](BinaryPairBound/FiniteKLStandard.lean): `FiniteInfo.relativeEntropy_pos_iff`, `FiniteInfo.coefficient_eq_sup_positive_KL`, `FiniteInfo.coefficient_eq_zero_of_pointMass` |
 | Binary coefficient equals the paper's $S$ | [BinaryKernel.lean](BinaryPairBound/BinaryKernel.lean): `FiniteInfo.coefficient_binary` |
 | Finite joint laws and conditional channels | [FiniteJoint.lean](BinaryPairBound/FiniteJoint.lean): `FiniteInfo.joint_conditional_mass`, `FiniteInfo.jointCoefficient_default_irrel` |
 
@@ -235,8 +254,8 @@ upper bound; it does not identify the sharp replacement bound.
 
 The project uses Lean **4.35.0** and mathlib **4.35.0**, pinned to mathlib
 commit `56a005855ea17e0b0958f73ec801ae140b0a1679` in `lake-manifest.json`.
-All **59 source modules** are imported by the root module and built. `Audit.lean`
-contains **121 guarded axiom checks** for the scalar theorem, random-variable interface,
+All **60 source modules** are imported by the root module and built. `Audit.lean`
+contains **133 guarded axiom checks** for the scalar theorem, random-variable interface,
 KL interpretation, tensorization, data processing, and Section 10 consequences.
 There are no `sorry` placeholders or additional axioms. Only `propext`,
 `Classical.choice`, and `Quot.sound` are accepted by the audit.
@@ -306,8 +325,9 @@ alternative arguments used in the formal proof.
 - Binary random variables take values in `Bool`; the sample space and its
   probability measure are arbitrary. Independence is mathlib's `IndepFun`.
 - Finite-alphabet KL tests are required to be absolutely continuous with
-  respect to the reference input law (`Supported`). The unchanged input
-  contributes the harmless ratio zero. Deterministic sources have coefficient zero.
+  respect to the reference input law (`Supported`). `FiniteKLStandard` proves
+  that excluding the unchanged law gives the same coefficient, with an explicit
+  zero value for an empty test set. Deterministic sources have coefficient zero.
 - Arbitrary finite joint laws are reconstructed from their marginal and
   conditional channel. Choices on null input atoms do not affect the coefficient.
 - Contact existence is proved at the actual cap `S(s)` for every nonmerging

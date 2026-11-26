@@ -166,6 +166,15 @@ maximum characterization. Output relabeling covers negative channel slope.
    lies in `[0,1]` and satisfies its own universal cap. `FiniteKL` identifies
    the density ratios exactly with KL ratios over supported alternative
    probability laws; homogeneity removes the density normalization.
+   `FiniteKLStandard` then excludes the unchanged input law explicitly.
+   Strict Jensen equality proves `relativeEntropy_eq_zero_iff` and hence
+   positivity for every supported, distinct law, including laws with zero atoms.
+   `probabilityRatios_eq_insert_standard` identifies the old test set with the
+   new one plus zero. Boundedness and nonnegativity prove
+   `coefficient_eq_standardKLCoefficient`, with an explicit zero convention for
+   an empty test set. The positive-denominator formula and the full-support
+   formula with only `Q ≠ P` follow; a point-mass reference has no alternative
+   and coefficient zero.
    `BinaryKernel` identifies this coefficient with the unchanged scalar `S`.
 5. `FiniteJoint` reconstructs every finite joint source from its input marginal
    and conditional channel, proves exact atom recovery, and proves the
@@ -198,7 +207,7 @@ maximum characterization. Output relabeling covers negative channel slope.
 
 ## Trust and scope
 
-All 59 source modules are built. `Audit.lean` guards 121 axiom lists for the main
+All 60 source modules are built. `Audit.lean` guards 133 axiom lists for the main
 theorem and the probability, finite-KL, and Section 10 results. Only the standard
 `propext`, `Classical.choice`, and `Quot.sound` appear. No added axioms,
 `sorry`, or native decision shortcuts stand in for mathematical arguments.

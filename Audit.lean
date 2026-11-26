@@ -493,6 +493,55 @@ axiom names and theorem names must match exactly.
 #guard_msgs (whitespace := lax) in
 #print axioms BinaryPairBound.iid_dsbs_random_variable_bound_source
 
+-- The standard finite KL coefficient excludes the unchanged input law.
+/-- info: 'BinaryPairBound.FiniteInfo.relativeEntropy_eq_zero_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.relativeEntropy_eq_zero_iff
+
+/-- info: 'BinaryPairBound.FiniteInfo.relativeEntropy_pos_iff' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.relativeEntropy_pos_iff
+
+/-- info: 'BinaryPairBound.FiniteInfo.standardKLRatios_eq_positive' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.standardKLRatios_eq_positive
+
+/-- info: 'BinaryPairBound.FiniteInfo.probabilityRatios_eq_insert_standard' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.probabilityRatios_eq_insert_standard
+
+/-- info: 'BinaryPairBound.FiniteInfo.coefficient_eq_standardKLCoefficient' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.coefficient_eq_standardKLCoefficient
+
+/-- info: 'BinaryPairBound.FiniteInfo.coefficient_eq_sup_KL_ne' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.coefficient_eq_sup_KL_ne
+
+/-- info: 'BinaryPairBound.FiniteInfo.coefficient_eq_sup_positive_KL' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.coefficient_eq_sup_positive_KL
+
+/-- info: 'BinaryPairBound.FiniteInfo.coefficient_eq_zero_of_no_alternative' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.coefficient_eq_zero_of_no_alternative
+
+/-- info: 'BinaryPairBound.FiniteInfo.supported_eq_of_pointMass' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.supported_eq_of_pointMass
+
+/-- info: 'BinaryPairBound.FiniteInfo.coefficient_eq_zero_of_pointMass' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.coefficient_eq_zero_of_pointMass
+
+/-- info: 'BinaryPairBound.FiniteInfo.standardKLRatios_of_fullSupport' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.standardKLRatios_of_fullSupport
+
+/-- info: 'BinaryPairBound.FiniteInfo.coefficient_eq_sup_KL_ne_of_fullSupport' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.coefficient_eq_sup_KL_ne_of_fullSupport
+
 -- The original target now has an unconditional proof.
 #check (BinaryPairBound.mainTheorem : BinaryPairBound.MainTheorem)
 #check @BinaryPairBound.sharp_bound
@@ -507,3 +556,8 @@ axiom names and theorem names must match exactly.
 #check @BinaryPairBound.iid_dsbs_random_variable_bound
 #check @BinaryPairBound.iid_dsbs_random_variable_bound_source
 #check @BinaryPairBound.binary_random_variable_bidirectional_strict
+
+-- Exact standard KL formula and its domain, including zero-mass atoms.
+#check @BinaryPairBound.FiniteInfo.coefficient_eq_standardKLCoefficient
+#check @BinaryPairBound.FiniteInfo.coefficient_eq_sup_positive_KL
+#check @BinaryPairBound.FiniteInfo.coefficient_eq_sup_KL_ne_of_fullSupport
