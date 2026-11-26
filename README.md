@@ -49,77 +49,100 @@ Here $H$ is binary entropy in nats. Independence of random variables is
 mathlib's standard `IndepFun`; the DSBS condition is equality of opposite
 joint probabilities: $p_{00}=p_{11}$ and $p_{01}=p_{10}$.
 
-**Usual definition under full support.** First take a finite input alphabet
-on which $P(x)>0$ for every input symbol $x$. This is called **full support**.
-The original [AGKN paper, pp. 1–2](https://arxiv.org/pdf/1304.6133) assumes
-positive marginal probabilities before giving its definition of the coefficient.
-For a fixed channel $K$, the usual definition in this setting is
+**Why the usual coefficient becomes $S(s,c,d)$.** We now explain the
+coefficient row in the table above. The purpose is to show that the quantity
+called $S$ in the scalar proof is the usual $s^{\ast}(W;Z)$.
+
+**Usual definition under full support.** Let $P$ be the distribution of $W$
+and let $K$ be the channel giving the conditional distribution of $Z$ given
+$W$. Keep this channel fixed, and replace the input distribution $P$ by another
+distribution $Q$. The original output distribution is $PK$; the new one is $QK$.
+
+For now, suppose the input alphabet is finite and $P(a)>0$ at every input
+symbol $a$. This is what **full support** means. Then
 
 ```math
 s^{\ast}(P,K)=\sup_{Q\ne P}\frac{D(QK\Vert PK)}{D(Q\Vert P)}.
 ```
 
-The supremum is over all probability laws $Q$ on the same input alphabet
-other than $P$. Here $PK$ and $QK$ are the output laws through the same channel.
-Full support makes $D(Q\Vert P)$ finite, and $Q\ne P$ makes it positive.
-In the paper's binary setting, $P=(1-s,s)$ has full support when $0<s<1$;
-writing $Q=(1-x,x)$ turns $Q\ne P$ into precisely $x\ne s$ in equation (2.2).
-Deterministic input or output is treated separately, with coefficient zero.
+The denominator measures the change in the input distribution; the numerator
+measures the resulting change in the output distribution, both using KL
+divergence. The coefficient is the supremum of this ratio over all choices of
+$Q\ne P$ on the same input alphabet. **$Q$ itself need not have full support.**
+Full support of $P$ makes the denominator finite; $Q\ne P$ makes it positive.
 
-The exclusion of $Q=P$ is now verified explicitly in
-[FiniteKLStandard.lean](BinaryPairBound/FiniteKLStandard.lean).
-`coefficient_eq_standardKLCoefficient` proves equality with a definition that
-excludes the unchanged input and assigns zero when no alternative exists.
-`coefficient_eq_sup_KL_ne_of_fullSupport` gives the displayed formula when
-the reference has full support and an alternative input law exists.
-
-**Connection to the paper's parameters.** For binary input and output,
-`FiniteInfo.coefficient_binary` proves that the coefficient used by the
-finite-alphabet part of the project equals the paper's $S(s,c,d)$.
-The implementation conventions behind this connection are described below.
-
-<details>
-<summary>Implementation notes: support restrictions and the extra zero test</summary>
-
-**Internal formulation.** `FiniteInfo.coefficient` is defined using entropy
-ratios of nonnegative functions. The theorem `coefficient_eq_sup_KL` in
-[FiniteKL.lean](BinaryPairBound/FiniteKL.lean) identifies it with a set of
-KL ratios, using the following conventions.
-
-**Zero-probability input symbols.** The Lean interface also allows finite
-alphabets containing symbols with $P(x)=0$. In that setting it requires
-$Q\ll P$, meaning $P(x)=0$ implies $Q(x)=0$, written `Supported Q P` in Lean.
-This makes the KL sum finite and is equivalent to taking alternative input
-laws on the support of $P$. More generally, the standard definition tests
-laws with $0<D(Q\Vert P)<\infty$; it allows the reference law to have zeros
-([Polyanskiy–Wu, equation (5)](https://arxiv.org/pdf/1508.06025#page=5)).
-On finite alphabets, this domain is exactly $Q\ll P$ and $Q\ne P$.
-`relativeEntropy_pos_iff` proves that, under the support condition, the KL
-denominator is positive exactly when $Q\ne P$; `coefficient_eq_sup_positive_KL`
-gives the corresponding supremum formula when alternatives exist.
-Under the full-support assumption above, every
-$Q$ automatically satisfies this condition: it removes no candidate from the
-displayed definition. The current implementation uses real-valued KL sums;
-it does not interpret unsupported alternatives whose ordinary KL is infinite.
-
-**The unchanged input law.** The usual definition above excludes $Q=P$.
-Substituting it anyway would give
+**Write the same definition in the paper's binary parameters.** A binary
+input distribution is determined by its probability of being $1$. Thus write
+$P=(1-s,s)$ and $Q=(1-x,x)$, with $x\in[0,1]$. The channel is determined by
+$c,d$, and its output-one probability is $q(x)=c+(1-c-d)x$. Consequently,
 
 ```math
-\frac{D(PK\Vert PK)}{D(P\Vert P)}=\frac{0}{0},
+\begin{aligned}
+P&=\operatorname{Bern}(s), & PK&=\operatorname{Bern}(q(s)),\\
+Q&=\operatorname{Bern}(x), & QK&=\operatorname{Bern}(q(x)).
+\end{aligned}
 ```
 
-which is undefined in ordinary arithmetic. The internal set of test ratios
-includes this extra test, and Lean's real division assigns it zero.
-`probabilityRatios_eq_insert_standard` proves that the old test set is exactly
-the new test set with zero inserted. Boundedness and nonnegativity then prove
-that deleting this extra test preserves the coefficient. If there is no
-supported alternative $Q\ne P$, the standard definition explicitly returns
-zero; `coefficient_eq_zero_of_pointMass` proves this for every deterministic
-input and every channel. These steps are Lean proofs, including all the
-zero-probability cases.
+Here $\operatorname{Bern}(t)$ means the distribution $(1-t,t)$.
+Choosing $Q\ne P$ is exactly choosing $x\ne s$. Substituting the four
+distributions above into the usual definition gives equation (2.2) of the paper:
 
-</details>
+```math
+s^{\ast}(W;Z)
+=\sup_{\substack{x\in[0,1]\\x\ne s}}
+\frac{D(\operatorname{Bern}(q(x))\Vert\operatorname{Bern}(q(s)))}
+     {D(\operatorname{Bern}(x)\Vert\operatorname{Bern}(s))}
+=S(s,c,d).
+```
+
+This is the formula when both binary marginals are non-deterministic.
+If either variable is deterministic, the coefficient is zero, as in the paper.
+
+**What Lean proves here.** The coefficient used in the finite-alphabet Lean
+theorems equals the usual KL-ratio coefficient above. For binary pairs it also
+equals the paper's $S(s,c,d)$. These equalities let us read the later Lean
+bounds as statements about ordinary mutual information and $s^{\ast}$.
+The proofs also cover distributions with zero-probability symbols; the details
+and source locations are below.
+
+<details>
+<summary>Technical details and Lean proof locations</summary>
+
+**If $P$ has zero-probability symbols.** Full support is used above to give
+the simplest form of the definition. More generally, the standard definition
+takes the supremum over $Q$ with $0<D(Q\Vert P)<\infty$
+([Polyanskiy–Wu, equation (5)](https://arxiv.org/pdf/1508.06025#page=5)).
+For finite alphabets this means precisely:
+
+- $Q\ne P$;
+- whenever $P(a)=0$, also $Q(a)=0$.
+
+The second condition is written $Q\ll P$, or `Supported Q P` in Lean.
+It allows zeros in either distribution. For example, if $P=(1/2,1/2,0)$,
+then $Q=(1,0,0)$ is allowed, but $Q=(0,0,1)$ is excluded because its KL
+divergence from $P$ is infinite. When $P$ has full support, this second
+condition is automatic, leaving only $Q\ne P$ as in the displayed formula.
+The [AGKN definition, pp. 1–2](https://arxiv.org/pdf/1304.6133) is stated
+under positive marginal probabilities.
+
+**Why the code also discusses $Q=P$.** The ordinary definition excludes it.
+An intermediate Lean formula includes it: both KL divergences then equal
+zero. Ordinary arithmetic leaves $0/0$ undefined; Lean's real division assigns
+it zero.
+The project proves that removing this extra zero leaves the supremum
+unchanged. Thus the final standard definition in Lean explicitly excludes
+$Q=P$ and gives the same coefficient. This concerns the ratio for an unchanged
+*whole distribution*, independently of whether individual symbols have
+probability zero. If there is no admissible $Q\ne P$, the coefficient is
+defined to be zero; the proofs include deterministic inputs.
+
+**How to check the connection in the code.** The internal coefficient starts
+from entropy ratios of nonnegative functions. `FiniteKL` proves equality with
+supported KL ratios; `FiniteKLStandard` proves equality with the standard
+definition excluding $Q=P$; `BinaryKernel` proves equality with $S(s,c,d)$ for
+binary laws. The KL sums used here are real-valued, so their interpretation as
+ordinary KL requires `Supported`; unsupported alternatives with infinite KL
+are outside these theorems.
 
 **Lean entry points** (names below are in the `BinaryPairBound` namespace):
 
@@ -132,6 +155,8 @@ zero-probability cases.
 | Positive KL denominator and deterministic inputs | [FiniteKLStandard.lean](BinaryPairBound/FiniteKLStandard.lean): `FiniteInfo.relativeEntropy_pos_iff`, `FiniteInfo.coefficient_eq_sup_positive_KL`, `FiniteInfo.coefficient_eq_zero_of_pointMass` |
 | Binary coefficient equals the paper's $S$ | [BinaryKernel.lean](BinaryPairBound/BinaryKernel.lean): `FiniteInfo.coefficient_binary` |
 | Finite joint laws and conditional channels | [FiniteJoint.lean](BinaryPairBound/FiniteJoint.lean): `FiniteInfo.joint_conditional_mass`, `FiniteInfo.jointCoefficient_default_irrel` |
+
+</details>
 
 ## 2. Theorem 2.1: the main bound and equality cases
 
