@@ -1,4 +1,3 @@
-✔ [2754/2755] Built BinaryPairBound (5.6s)
 Build completed successfully (2755 jobs).
 BinaryPairBound.mainTheorem : BinaryPairBound.MainTheorem
 @BinaryPairBound.sharp_bound : ∀ {s c d : ℝ},

@@ -287,9 +287,10 @@ alternative arguments used in the formal proof.
 - `FiniteKLAGKN` provides the full-support special case, with only $Q\ne P$
   imposed on the alternative law, and proves agreement with the general coefficient.
 - Arbitrary finite joint laws are reconstructed from their marginal and
-  conditional channel. Choices on null input atoms do not affect the coefficient.
-- Contact existence is proved at the actual cap `S(s)` for every nonmerging
-  interior source, which is sufficient for the main theorem. A separate
+  conditional channel. The default output symbol chosen on null input atoms
+  does not affect the coefficient.
+- Contact existence is proved at the actual cap `S(s)` for every dependent,
+  nonmerging interior source, which is sufficient for the main theorem. A separate
   arbitrary-cap formulation of every assertion in Lemma 4.1 is not claimed.
 
 Source PDF SHA-256:

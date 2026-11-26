@@ -189,7 +189,8 @@ maximum characterization. Output relabeling covers negative channel slope.
    this full-support coefficient.
 5. `FiniteJoint` reconstructs every finite joint source from its input marginal
    and conditional channel, proves exact atom recovery, and proves the
-   coefficient is independent of choices on null conditioning events.
+   coefficient is independent of the default output symbol used on null
+   conditioning events.
 6. `FiniteTensorization` proves the entropy chain identity for product laws.
    Applying the cap conditionally in one coordinate, convexity to posterior
    mixtures in the other, and the second cap gives a product cap. Induction
@@ -226,6 +227,6 @@ theorem and the probability, finite-KL, and Section 10 results. Only the standar
 The arbitrary probability-space bridge and Section 10 Boolean-function
 consequences are included. The new optimization problem for unequal prescribed
 forward/reverse coefficients remains a research question in the paper; only
-its asserted bound and nonattainment are formalized. Contact existence is established at every nonmerging
-source's actual cap; a standalone arbitrary-cap version of all of Lemma 4.1
+its asserted bound and nonattainment are formalized. Contact existence is established at every dependent, nonmerging
+interior source's actual cap; a standalone arbitrary-cap version of all of Lemma 4.1
 is not required by, or claimed as part of, this certificate.
