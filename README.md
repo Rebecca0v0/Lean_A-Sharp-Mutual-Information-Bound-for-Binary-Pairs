@@ -78,20 +78,20 @@ $c,d$, and its output-one probability is $q(x)=c+(1-c-d)x$. Consequently,
 
 ```math
 \begin{aligned}
-P&=\operatorname{Bern}(s), & PK&=\operatorname{Bern}(q(s)),\\
-Q&=\operatorname{Bern}(x), & QK&=\operatorname{Bern}(q(x)).
+P&=\mathrm{Bern}(s), & PK&=\mathrm{Bern}(q(s)),\\
+Q&=\mathrm{Bern}(x), & QK&=\mathrm{Bern}(q(x)).
 \end{aligned}
 ```
 
-Here $\operatorname{Bern}(t)$ means the distribution $(1-t,t)$.
+Here $\mathrm{Bern}(t)$ means the distribution $(1-t,t)$.
 Choosing $Q\ne P$ is exactly choosing $x\ne s$. Substituting the four
 distributions above into the usual definition gives equation (2.2) of the paper:
 
 ```math
 s^{\ast}(W;Z)
 =\sup_{\substack{x\in[0,1]\\x\ne s}}
-\frac{D(\operatorname{Bern}(q(x))\Vert\operatorname{Bern}(q(s)))}
-     {D(\operatorname{Bern}(x)\Vert\operatorname{Bern}(s))}
+\frac{D(\mathrm{Bern}(q(x))\Vert\mathrm{Bern}(q(s)))}
+     {D(\mathrm{Bern}(x)\Vert\mathrm{Bern}(s))}
 =S(s,c,d).
 ```
 
