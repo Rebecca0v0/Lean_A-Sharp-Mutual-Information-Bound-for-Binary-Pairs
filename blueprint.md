@@ -162,20 +162,32 @@ maximum characterization. Output relabeling covers negative channel slope.
    `Ent_p(f) = Σ p f log f − (Σ p f) log(Σ p f)` and proves nonnegativity
    and the data-processing inequality. `FiniteEntropyConvex` proves log-sum
    and convexity in the density, allowing zero weights and zero atoms.
-4. `FiniteContraction` constructs the supremum coefficient and proves it
-   lies in `[0,1]` and satisfies its own universal cap. `FiniteKL` identifies
-   the density ratios exactly with KL ratios over supported alternative
-   probability laws; homogeneity removes the density normalization.
-   `FiniteKLStandard` then excludes the unchanged input law explicitly.
-   Strict Jensen equality proves `relativeEntropy_eq_zero_iff` and hence
-   positivity for every supported, distinct law, including laws with zero atoms.
-   `probabilityRatios_eq_insert_standard` identifies the old test set with the
-   new one plus zero. Boundedness and nonnegativity prove
-   `coefficient_eq_standardKLCoefficient`, with an explicit zero convention for
-   an empty test set. The positive-denominator formula and the full-support
-   formula with only `Q ≠ P` follow; a point-mass reference has no alternative
-   and coefficient zero.
-   `BinaryKernel` identifies this coefficient with the unchanged scalar `S`.
+4. The primary full-support interface is `FiniteInfo.agknCoefficient` in
+   `FiniteKLAGKN`.
+   Its definition takes a proof that every input probability is positive and
+   takes the supremum only over laws `Q ≠ P`, as in AGKN Definition 4.
+   There is no `Supported` condition in this candidate set, because full
+   support of `P` already guarantees finite KL for every `Q`. The denominator
+   is proved positive. The empty candidate set is assigned zero, and every
+   deterministic output is proved to give coefficient zero.
+   `agknCoefficient_eq_coefficient` proves that this direct definition equals
+   the internal coefficient used in the remaining proofs; `agknCoefficient_binary`
+   identifies it with scalar `S` for non-deterministic binary inputs.
+   `iid_binary_bound_agkn` states the Section 10 inequality directly with
+   this AGKN coefficient.
+
+   The existing general interface is retained as a separate extension for
+   zero-probability atoms and deterministic inputs. `FiniteContraction`
+   constructs its entropy-ratio coefficient and proves it lies in `[0,1]`
+   and satisfies its own universal cap. `FiniteKL` identifies density ratios
+   with supported KL ratios. `FiniteKLStandard` defines the extension using
+   `Supported Q P` and `Q ≠ P`, returning zero if no alternative exists.
+   Strict Jensen equality proves that the supported KL denominator is zero
+   exactly when `Q = P`. The intermediate entropy formulation and the
+   explicit exclusion definition are proved equal. These internal equivalence
+   proofs do not change the domain of the primary AGKN definition.
+   `BinaryKernel` identifies the general coefficient with scalar `S`, including
+   deterministic binary inputs and outputs.
 5. `FiniteJoint` reconstructs every finite joint source from its input marginal
    and conditional channel, proves exact atom recovery, and proves the
    coefficient is independent of choices on null conditioning events.
@@ -207,7 +219,7 @@ maximum characterization. Output relabeling covers negative channel slope.
 
 ## Trust and scope
 
-All 60 source modules are built. `Audit.lean` guards 133 axiom lists for the main
+All 61 source modules are built. `Audit.lean` guards 143 axiom lists for the main
 theorem and the probability, finite-KL, and Section 10 results. Only the standard
 `propext`, `Classical.choice`, and `Quot.sound` appear. No added axioms,
 `sorry`, or native decision shortcuts stand in for mathematical arguments.

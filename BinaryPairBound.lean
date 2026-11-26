@@ -30,6 +30,7 @@ public import BinaryPairBound.FiniteEntropyConvex
 public import BinaryPairBound.FiniteJoint
 public import BinaryPairBound.FiniteKL
 public import BinaryPairBound.FiniteKLStandard
+public import BinaryPairBound.FiniteKLAGKN
 public import BinaryPairBound.FiniteProcessing
 public import BinaryPairBound.FiniteRandomVariables
 public import BinaryPairBound.FiniteTensorization

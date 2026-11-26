@@ -542,6 +542,47 @@ axiom names and theorem names must match exactly.
 #guard_msgs (whitespace := lax) in
 #print axioms BinaryPairBound.FiniteInfo.coefficient_eq_sup_KL_ne_of_fullSupport
 
+-- The primary AGKN definition requires full support and directly excludes Q = P.
+/-- info: 'BinaryPairBound.FiniteInfo.agkn_denominator_pos' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.agkn_denominator_pos
+
+/-- info: 'BinaryPairBound.FiniteInfo.agknRatios_eq_standardKLRatios' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.agknRatios_eq_standardKLRatios
+
+/-- info: 'BinaryPairBound.FiniteInfo.agknCoefficient_eq_coefficient' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.agknCoefficient_eq_coefficient
+
+/-- info: 'BinaryPairBound.FiniteInfo.agknCoefficient_eq_sup' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.agknCoefficient_eq_sup
+
+/-- info: 'BinaryPairBound.FiniteInfo.agknCoefficient_eq_zero_of_no_alternative' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.agknCoefficient_eq_zero_of_no_alternative
+
+/-- info: 'BinaryPairBound.FiniteInfo.agknCoefficient_eq_zero_of_output_pointMass' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.agknCoefficient_eq_zero_of_output_pointMass
+
+/-- info: 'BinaryPairBound.FiniteInfo.agknCoefficient_mem' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.agknCoefficient_mem
+
+/-- info: 'BinaryPairBound.FiniteInfo.bernoulli_fullSupport' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.bernoulli_fullSupport
+
+/-- info: 'BinaryPairBound.FiniteInfo.agknCoefficient_binary' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.agknCoefficient_binary
+
+/-- info: 'BinaryPairBound.FiniteInfo.iid_binary_bound_agkn' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms BinaryPairBound.FiniteInfo.iid_binary_bound_agkn
+
 -- The original target now has an unconditional proof.
 #check (BinaryPairBound.mainTheorem : BinaryPairBound.MainTheorem)
 #check @BinaryPairBound.sharp_bound
@@ -561,3 +602,11 @@ axiom names and theorem names must match exactly.
 #check @BinaryPairBound.FiniteInfo.coefficient_eq_standardKLCoefficient
 #check @BinaryPairBound.FiniteInfo.coefficient_eq_sup_positive_KL
 #check @BinaryPairBound.FiniteInfo.coefficient_eq_sup_KL_ne_of_fullSupport
+
+-- Direct AGKN definition: full-support input and distinct test laws.
+#check @BinaryPairBound.FiniteInfo.agknCoefficient
+#print BinaryPairBound.FiniteInfo.agknRatios
+#check @BinaryPairBound.FiniteInfo.agkn_denominator_pos
+#check @BinaryPairBound.FiniteInfo.agknCoefficient_eq_coefficient
+#check @BinaryPairBound.FiniteInfo.agknCoefficient_binary
+#check @BinaryPairBound.FiniteInfo.iid_binary_bound_agkn

@@ -1,5 +1,5 @@
-✔ [2753/2754] Built BinaryPairBound (3.8s)
-Build completed successfully (2754 jobs).
+✔ [2754/2755] Built BinaryPairBound (5.6s)
+Build completed successfully (2755 jobs).
 BinaryPairBound.mainTheorem : BinaryPairBound.MainTheorem
 @BinaryPairBound.sharp_bound : ∀ {s c d : ℝ},
   BinaryPairBound.Valid s c d → BinaryPairBound.J s c d ≤ BinaryPairBound.phi (BinaryPairBound.S s c d)
@@ -89,3 +89,39 @@ BinaryPairBound.mainTheorem : BinaryPairBound.MainTheorem
                   BinaryPairBound.FiniteInfo.relativeEntropy (BinaryPairBound.FiniteInfo.out r K)
                       (BinaryPairBound.FiniteInfo.out p K) /
                     BinaryPairBound.FiniteInfo.relativeEntropy r p}
+@BinaryPairBound.FiniteInfo.agknCoefficient : {α : Type u_1} →
+  {β : Type u_2} →
+    [inst : Fintype α] →
+      [inst_1 : Fintype β] →
+        (p : BinaryPairBound.FiniteInfo.Law α) → BinaryPairBound.FiniteInfo.Channel α β → (∀ (a : α), 0 < p.mass a) → ℝ
+def BinaryPairBound.FiniteInfo.agknRatios.{u_1, u_2} : {α : Type u_1} →
+  {β : Type u_2} →
+    [inst : Fintype α] →
+      [inst_1 : Fintype β] →
+        (p : BinaryPairBound.FiniteInfo.Law α) →
+          BinaryPairBound.FiniteInfo.Channel α β → (∀ (a : α), 0 < p.mass a) → Set ℝ :=
+fun {α} {β} [Fintype α] [Fintype β] p K _hp =>
+  {v |
+    ∃ r,
+      r ≠ p ∧
+        v =
+          BinaryPairBound.FiniteInfo.relativeEntropy (BinaryPairBound.FiniteInfo.out r K)
+              (BinaryPairBound.FiniteInfo.out p K) /
+            BinaryPairBound.FiniteInfo.relativeEntropy r p}
+@BinaryPairBound.FiniteInfo.agkn_denominator_pos : ∀ {α : Type u_1} [inst : Fintype α]
+  (p r : BinaryPairBound.FiniteInfo.Law α),
+  (∀ (a : α), 0 < p.mass a) → r ≠ p → 0 < BinaryPairBound.FiniteInfo.relativeEntropy r p
+@BinaryPairBound.FiniteInfo.agknCoefficient_eq_coefficient : ∀ {α : Type u_1} {β : Type u_2} [inst : Fintype α]
+  [inst_1 : Fintype β] (p : BinaryPairBound.FiniteInfo.Law α) (K : BinaryPairBound.FiniteInfo.Channel α β)
+  (hp : ∀ (a : α), 0 < p.mass a),
+  BinaryPairBound.FiniteInfo.agknCoefficient p K hp = BinaryPairBound.FiniteInfo.coefficient p K
+@BinaryPairBound.FiniteInfo.agknCoefficient_binary : ∀ {s c d : ℝ} (hv : BinaryPairBound.Valid s c d)
+  (hs : s ∈ Set.Ioo 0 1),
+  BinaryPairBound.FiniteInfo.agknCoefficient (BinaryPairBound.FiniteInfo.bernoulli s ⋯)
+      (BinaryPairBound.FiniteInfo.binaryChannel c d ⋯ ⋯) ⋯ =
+    BinaryPairBound.S s c d
+@BinaryPairBound.FiniteInfo.iid_binary_bound_agkn : ∀ {α : Type u_1} {β : Type u_2} [inst : Fintype α]
+  [inst_1 : Fintype β] (p : BinaryPairBound.FiniteInfo.Law α) (K : BinaryPairBound.FiniteInfo.Channel α β)
+  (hp : ∀ (a : α), 0 < p.mass a) (n : ℕ) (f : (Fin n → α) → Bool) (g : (Fin n → β) → Bool),
+  (BinaryPairBound.FiniteInfo.iidBinaryLaw p K n f g).mutualInfo ≤
+    BinaryPairBound.phi (BinaryPairBound.FiniteInfo.agknCoefficient p K hp)
