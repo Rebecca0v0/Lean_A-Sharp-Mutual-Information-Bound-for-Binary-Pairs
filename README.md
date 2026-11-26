@@ -89,7 +89,7 @@ coefficient used by the proofs is verified in `FiniteKLStandard`.
 
 ## 2. Theorem 2.1: the main bound and equality cases
 
-For every binary pair, the main result is
+Theorem 2.1 proves the bound in equation (1.1) for every binary pair:
 
 ```math
 I(W;Z)\leq\phi(s^{\ast}(W;Z)),
@@ -97,7 +97,8 @@ I(W;Z)\leq\phi(s^{\ast}(W;Z)),
 ```
 
 Equality holds **if and only if** the variables are independent or their joint
-law is DSBS. Through the correspondences in Part 1, the scalar statement is
+law is DSBS. Using the correspondences in Part 1, the same theorem written in
+the parameters $s,c,d$ is
 
 ```math
 J(s,c,d)\leq\phi(S(s,c,d)).
@@ -113,16 +114,20 @@ positive, zero, or negative channel slope $k=1-c-d$.
 
 **Lean entry points:**
 
+The first two rows give the parameter form; the next two give the same result
+for measurable binary random variables on any probability space.
+
 | Statement | File and declarations |
 |---|---|
-| Original theorem specification | [Specification.lean](BinaryPairBound/Specification.lean): `MainTheorem` |
-| Completed scalar proof | [MainProof.lean](BinaryPairBound/MainProof.lean): `mainTheorem`, `sharp_bound`, `sharp_equality_iff` |
-| Fixed-cap optimum, equation (3.1) | [MainProof.lean](BinaryPairBound/MainProof.lean): `fixed_cap_optimum` |
-| Bound and equality for actual random variables | [RandomVariables.lean](BinaryPairBound/RandomVariables.lean): `binary_random_variable_bound`, `binary_random_variable_equality_iff` |
+| Theorem 2.1, bound: $J(s,c,d)\leq\phi(S(s,c,d))$ | [MainProof.lean](BinaryPairBound/MainProof.lean): `sharp_bound` |
+| Theorem 2.1, equality: $J(s,c,d)=\phi(S(s,c,d))$ iff independence or DSBS | [MainProof.lean](BinaryPairBound/MainProof.lean): `sharp_equality_iff` |
+| Equation (1.1): $I(W;Z)\leq\phi(s^{\ast}(W;Z))$ | [RandomVariables.lean](BinaryPairBound/RandomVariables.lean): `binary_random_variable_bound` |
+| Equality in (1.1): $I(W;Z)=\phi(s^{\ast}(W;Z))$ iff $W,Z$ are independent or DSBS | [RandomVariables.lean](BinaryPairBound/RandomVariables.lean): `binary_random_variable_equality_iff` |
+| Equation (3.1): the maximum of $J$ under $S\leq\lambda$ is $\phi(\lambda)$, for $\lambda\in[0,1]$ | [MainProof.lean](BinaryPairBound/MainProof.lean): `fixed_cap_optimum` |
 
-`mainTheorem : MainTheorem` has no remaining proof premise. The conditional
-assembly in `Main.lean` is retained as a reusable lemma; its `MaximizersMerge`
-premise is proved in `MainProof.lean`.
+`MainTheorem` in [Specification.lean](BinaryPairBound/Specification.lean)
+names the first two statements together; `mainTheorem` in
+[MainProof.lean](BinaryPairBound/MainProof.lean) is their proof.
 
 ## 3. Section 10: corollaries for Boolean functions of IID samples
 
