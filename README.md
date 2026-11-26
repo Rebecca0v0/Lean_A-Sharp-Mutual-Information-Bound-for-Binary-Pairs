@@ -3,6 +3,46 @@
 Lean formalization of Qianmian Guo, *A Sharp Mutual Information Bound for
 Binary Pairs*, arXiv:2611.02392v1 (2 November 2026).
 
+## Verification
+
+The project uses Lean **4.35.0** and mathlib **4.35.0**, pinned to mathlib
+commit `56a005855ea17e0b0958f73ec801ae140b0a1679` in `lake-manifest.json`.
+All **61 source modules** are imported by the root module and built. `Audit.lean`
+contains **143 guarded axiom checks** for the scalar theorem, random-variable interface,
+KL interpretation, tensorization, data processing, and Section 10 consequences.
+There are no `sorry` placeholders or additional axioms. Only `propext`,
+`Classical.choice`, and `Quot.sound` are accepted by the audit.
+
+From this project directory:
+
+```sh
+./scripts/check.sh
+```
+
+This builds the project and runs the guarded audit. The last successful
+output is recorded in [`verification.log`](verification.log). The individual
+steps are:
+
+```sh
+./scripts/lake.sh build
+./scripts/lake.sh env lean Audit.lean
+```
+
+On a fresh checkout, install Lean using the [official guide](https://lean-lang.org/install/),
+then run:
+
+```sh
+./scripts/lake.sh exe cache get
+./scripts/check.sh
+```
+
+Open the entire project folder in VS Code with the Lean 4 extension.
+The wrapper uses `.tooling/elan` when a project-local installation exists;
+otherwise it uses the normal `lake` installation. Compiler/dependency caches
+are excluded from version control. No global shell settings are changed.
+
+## Mathematical content
+
 The mathematical content is organized into four parts, in reading order:
 
 1. **Definitions and parametrization:** connect ordinary probability definitions
@@ -124,6 +164,9 @@ for measurable binary random variables on any probability space.
 names the first two statements together; `mainTheorem` in
 [MainProof.lean](BinaryPairBound/MainProof.lean) is their proof.
 
+The proof map for `mainTheorem` is in the
+[proof blueprint](blueprint.md#theorem-21-proof-map).
+
 ## 3. Section 10: corollaries for Boolean functions of IID samples
 
 Let $(X_1,Y_1),\ldots,(X_n,Y_n)$ be independent copies of a pair $(X,Y)$ with
@@ -201,94 +244,3 @@ $s^{\ast}(W;Z)=s^{\ast}(Z;W)=t$.
 | $I(W;Z)=\phi(\min(a,b))$ $\iff (W\perp Z)\lor\mathrm{DSBS}(W,Z)$ | [ReverseChannel.lean](BinaryPairBound/ReverseChannel.lean): `bidirectional_equality_iff` |
 | $a\ne b\ \Longrightarrow$ $I(W;Z)\lt\phi(\min(a,b))$ | [ReverseChannel.lean](BinaryPairBound/ReverseChannel.lean): `bidirectional_strict_of_ne`, `prescribed_bidirectional_strict`; [RandomVariableDirections.lean](BinaryPairBound/RandomVariableDirections.lean): `binary_random_variable_bidirectional_strict` |
 | $\forall t\in[0,1],$ $\max_{a=b=t}I(W;Z)=\phi(t)$, attained by a DSBS | [ReverseChannel.lean](BinaryPairBound/ReverseChannel.lean): `equal_directed_cap_optimum` |
-
-## 5. Verification
-
-The project uses Lean **4.35.0** and mathlib **4.35.0**, pinned to mathlib
-commit `56a005855ea17e0b0958f73ec801ae140b0a1679` in `lake-manifest.json`.
-All **61 source modules** are imported by the root module and built. `Audit.lean`
-contains **143 guarded axiom checks** for the scalar theorem, random-variable interface,
-KL interpretation, tensorization, data processing, and Section 10 consequences.
-There are no `sorry` placeholders or additional axioms. Only `propext`,
-`Classical.choice`, and `Quot.sound` are accepted by the audit.
-
-From this project directory:
-
-```sh
-./scripts/check.sh
-```
-
-This builds the project and runs the guarded audit. The last successful
-output is recorded in [`verification.log`](verification.log). The individual
-steps are:
-
-```sh
-./scripts/lake.sh build
-./scripts/lake.sh env lean Audit.lean
-```
-
-On a fresh checkout, install Lean using the [official guide](https://lean-lang.org/install/),
-then run:
-
-```sh
-./scripts/lake.sh exe cache get
-./scripts/check.sh
-```
-
-Open the entire project folder in VS Code with the Lean 4 extension.
-The wrapper uses `.tooling/elan` when a project-local installation exists;
-otherwise it uses the normal `lake` installation. Compiler/dependency caches
-are excluded from version control. No global shell settings are changed.
-
-## Theorem 2.1 proof map
-
-The modules below develop the scalar proof in Part 2. Entry points for the
-definition correspondences, IID corollaries, and directional results are listed
-in Parts 1, 3, and 4 respectively.
-
-| Paper step | Main modules |
-|---|---|
-| Definitions, KL identities, equation (4.1) | `Definitions`, `Entropy`, `TangentGap`, `Divergence` |
-| Exact coefficient, endpoints, relabeling | `Contraction`, `Information`, `Endpoints`, `Symmetry` |
-| Curvature and diagonal ratio | `Curvature`, `ChannelCap`, `LocalCoefficient`, `RatioContinuity` |
-| Joint continuity and compact maximizers | `JointRatioContinuity`, `Compactness`, `Optimization` |
-| Distinct contacts and global support | `ContactGeometry`, `ContactEndpoints`, `ContactFeasibility` |
-| Smooth feasible contact family | `DivergenceCalculus`, `Perturbation`, `ContactJacobian`, `ContactFamily` |
-| Both strict information-derivative signs | `InformationPerturbation`, `Hyperbolic`, `ContactMonotonicity`, `ContactSymmetry`, `ReflectedSign`, `ContactPlacement`, `OutputDirection`, `ContactSigns` |
-| Boundary formula, continuation, strict improvement | `BoundaryCoefficient`, `BoundaryContinuation`, `BoundaryImprovement` |
-| Cap saturation and maximizers merge | `CapSaturation`, `MaximizerVariations`, `InteriorMaximizer`, `MainProof` |
-| Scalar entropy inequalities and merging bound | `ScalarEntropy`, `Merging`, `MergingSharp` |
-| DSBS attainment and final assembly | `SymmetricSource`, `Reduction`, `Specification`, `Main`, `MainProof` |
-
-The [proof blueprint](blueprint.md) records the dependencies and the
-alternative arguments used in the formal proof.
-
-## Scope and conventions
-
-- `H` is mathlib's binary entropy in nats.
-- `D x y` is finite Bernoulli KL for `x ∈ [0,1]` and `y ∈ (0,1)`.
-  Its total real extension is not extended-real KL at deterministic reference
-  distributions. All relevant uses supply the required domain hypotheses.
-- `S` is the distribution-dependent supremum from equation (2.2), with zero
-  for deterministic input or output. Its finiteness, domain bounds,
-  supporting-tangent characterization, and required continuity are proved.
-- Independence includes deterministic inputs. DSBS means `s=1/2 ∧ c=d`,
-  with crossover probability anywhere in `[0,1]`.
-- Binary random variables take values in `Bool`; the sample space and its
-  probability measure are arbitrary. Independence is mathlib's `IndepFun`.
-- The general coefficient allows zero probabilities in $P$ and directly
-  requires `Supported Q P` and $Q\ne P$. It is defined to be zero when no
-  candidate exists, including deterministic inputs. `FiniteKLStandard` proves
-  equality with the internal coefficient used by the existing theorems.
-- `FiniteKLAGKN` provides the full-support special case, with only $Q\ne P$
-  imposed on the alternative law, and proves agreement with the general coefficient.
-- Arbitrary finite joint laws are reconstructed from their marginal and
-  conditional channel. The default output symbol chosen on null input atoms
-  does not affect the coefficient.
-- Contact existence is proved at the actual cap `S(s)` for every dependent,
-  nonmerging interior source, which is sufficient for the main theorem. A separate
-  arbitrary-cap formulation of every assertion in Lemma 4.1 is not claimed.
-
-Source PDF SHA-256:
-`dae0f9de685a17492b61838adb0ae72a1a344b518c4456bf55584328614dbe22`.
-The PDF and synced project reference files are unchanged.

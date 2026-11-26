@@ -3,6 +3,9 @@
 Source: Qianmian Guo, *A Sharp Mutual Information Bound for Binary Pairs*,
 arXiv:2611.02392v1 (2 November 2026). Equation numbers refer to that version.
 
+Source PDF SHA-256:
+`dae0f9de685a17492b61838adb0ae72a1a344b518c4456bf55584328614dbe22`.
+
 ## Completed target
 
 `MainProof.lean` proves the unchanged scalar specification:
@@ -24,12 +27,16 @@ probability space, and the finite-source consequences in Section 10 are proved.
 ## Definitions
 
 - `k(c,d) = 1-c-d`, `q(c,d,x) = c+k(c,d)x`.
-- `H` is binary entropy in nats, with `H(0)=H(1)=0`.
+- `H` is mathlib's binary entropy in nats, with `H(0)=H(1)=0`.
 - `D(x,y) = -H(x)-x log(y)-(1-x)log(1-y)`.
   This is Bernoulli KL on `x ∈ [0,1]`, `y ∈ (0,1)`.
+  Its total real extension is not extended-real KL at deterministic reference
+  distributions. All relevant uses supply the required domain hypotheses.
 - `J(s,c,d) = H(q(s))-(1-s)H(c)-sH(d)`.
 - `S` is the supremum of `D(q(x),q(s))/D(x,s)` for `x ≠ s`, with the
-  paper's zero convention for deterministic input or output.
+  paper's zero convention for deterministic input or output. Its finiteness,
+  bounds in `[0,1]`, supporting-tangent characterization, and required
+  continuity are proved.
 - `phi(t) = log(2)-H((1-sqrt(t))/2)`.
 - `Independent` means `s=0 ∨ s=1 ∨ c+d=1`.
 - `DSBS` means `s=1/2 ∧ c=d`, including crossover probabilities above `1/2`.
@@ -73,6 +80,26 @@ flowchart TD
   DP --> S10
   RV --> DIR[Directed minimum bound and strictness]
 ```
+
+## Theorem 2.1 proof map
+
+The modules below develop the scalar proof of `mainTheorem`. The definitions
+and conventions are listed above; the random-variable interface and Section 10
+results are described below.
+
+| Paper step | Main modules |
+|---|---|
+| Definitions, KL identities, equation (4.1) | `Definitions`, `Entropy`, `TangentGap`, `Divergence` |
+| Exact coefficient, endpoints, relabeling | `Contraction`, `Information`, `Endpoints`, `Symmetry` |
+| Curvature and diagonal ratio | `Curvature`, `ChannelCap`, `LocalCoefficient`, `RatioContinuity` |
+| Joint continuity and compact maximizers | `JointRatioContinuity`, `Compactness`, `Optimization` |
+| Distinct contacts and global support | `ContactGeometry`, `ContactEndpoints`, `ContactFeasibility` |
+| Smooth feasible contact family | `DivergenceCalculus`, `Perturbation`, `ContactJacobian`, `ContactFamily` |
+| Both strict information-derivative signs | `InformationPerturbation`, `Hyperbolic`, `ContactMonotonicity`, `ContactSymmetry`, `ReflectedSign`, `ContactPlacement`, `OutputDirection`, `ContactSigns` |
+| Boundary formula, continuation, strict improvement | `BoundaryCoefficient`, `BoundaryContinuation`, `BoundaryImprovement` |
+| Cap saturation and maximizers merge | `CapSaturation`, `MaximizerVariations`, `InteriorMaximizer`, `MainProof` |
+| Scalar entropy inequalities and merging bound | `ScalarEntropy`, `Merging`, `MergingSharp` |
+| DSBS attainment and final assembly | `SymmetricSource`, `Reduction`, `Specification`, `Main`, `MainProof` |
 
 ## Verified steps and representative declarations
 
@@ -152,7 +179,7 @@ maximum characterization. Output relabeling covers negative channel slope.
 
 1. `BinaryLaw` starts with four nonnegative atom probabilities summing to one.
    Its canonical conditional probabilities recover every atom, including null
-   input rows. Shannon mutual information, defined as marginal entropy minus
+   input rows. Shannon mutual information, defined as the sum of marginal entropies minus
    joint entropy, is proved equal to `J`. Table factorization and opposite-cell
    symmetry are proved equivalent to the scalar independence and DSBS predicates.
 2. `RandomVariables` constructs this law from the actual joint events of
