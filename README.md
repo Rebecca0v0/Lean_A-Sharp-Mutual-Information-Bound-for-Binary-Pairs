@@ -30,10 +30,10 @@ When a conditioning event has probability zero, its conditional parameter is
 set to zero. The project proves that these parameters recover all four joint
 probabilities, including those cases:
 
-$$
+```math
 \begin{pmatrix}p_{00}&p_{01}\\p_{10}&p_{11}\end{pmatrix}
 =\begin{pmatrix}(1-s)(1-c)&(1-s)c\\sd&s(1-d)\end{pmatrix}.
-$$
+```
 
 It then proves the correspondence between the usual mathematical quantities
 and the scalar expressions used in the main proof:
@@ -41,7 +41,7 @@ and the scalar expressions used in the main proof:
 | Mathematical quantity or condition | Corresponding scalar expression |
 |---|---|
 | Shannon mutual information $I(W;Z)$ | $J(s,c,d)=H(q(s))-(1-s)H(c)-sH(d)$ |
-| Directed KL contraction coefficient $s^*(W;Z)$ | $S(s,c,d)$ |
+| Directed KL contraction coefficient $s^{\ast}(W;Z)$ | $S(s,c,d)$ |
 | Independence of $W$ and $Z$ | $s=0$ or $s=1$ or $c+d=1$ |
 | Doubly symmetric binary source (DSBS) | $s=1/2$ and $c=d$ |
 
@@ -53,9 +53,9 @@ The coefficient correspondence is also proved for general finite alphabets.
 For an input law $P$ and a channel $K$, the coefficient used internally in Lean
 is proved equal to the usual expression
 
-$$
+```math
 \sup_{Q\ll P}\frac{D(QK\Vert PK)}{D(Q\Vert P)}.
-$$
+```
 
 Here $PK$ and $QK$ are the output laws through the same channel, and $Q\ll P$
 means that $Q$ assigns zero probability wherever $P$ does. The unchanged law
@@ -76,22 +76,22 @@ with the usual KL coefficient; for binary laws it is exactly $S(s,c,d)$.
 
 For every binary pair, the main result is
 
-$$
-I(W;Z)\leq\phi(s^*(W;Z)),
+```math
+I(W;Z)\leq\phi(s^{\ast}(W;Z)),
 \qquad \phi(u)=\log 2-H\!\left(\frac{1-\sqrt{u}}{2}\right).
-$$
+```
 
 Equality holds **if and only if** the variables are independent or their joint
 law is DSBS. Through the correspondences in Part 1, the scalar statement is
 
-$$
+```math
 J(s,c,d)\leq\phi(S(s,c,d)).
-$$
+```
 
-$$
+```math
 J(s,c,d)=\phi(S(s,c,d))\iff
 \mathrm{Independent}(s,c,d)\lor\mathrm{DSBS}(s,c,d).
-$$
+```
 
 The proof covers all $s,c,d\in[0,1]$, including deterministic marginals and
 positive, zero, or negative channel slope $k=1-c-d$.
@@ -114,15 +114,15 @@ premise is proved in `MainProof.lean`.
 Let $(X_1,Y_1),\ldots,(X_n,Y_n)$ be independent copies of a pair $(X,Y)$ with
 finite alphabets. For any **binary-valued** functions $f$ and $g$, the project proves
 
-$$
-I(f(X^n);g(Y^n))\leq\phi(s^*(X;Y)).
-$$
+```math
+I(f(X^n);g(Y^n))\leq\phi(s^{\ast}(X;Y)).
+```
 
 In particular, when $(X,Y)$ is a DSBS, this gives
 
-$$
+```math
 I(f(X^n);g(Y^n))\leq I(X;Y).
-$$
+```
 
 The proof combines three proved results: independent copies preserve the
 contraction coefficient (tensorization, for $n\geq1$); applying $f,g$ cannot
@@ -153,22 +153,22 @@ and `binaryLaw_iid_joint_eq` identifies the event-based law with that pushforwar
 ## 4. Directionality of the contraction coefficient
 
 The paper's concluding discussion considers both directions for the same
-binary pair. Write $a=s^*(W;Z)$ and $b=s^*(Z;W)$. The project proves the
+binary pair. Write $a=s^{\ast}(W;Z)$ and $b=s^{\ast}(Z;W)$. The project proves the
 following results separately from the IID corollaries above.
 
 **Two-direction bound and equality.** Applying Theorem 2.1 in both directions gives
 
-$$
+```math
 I(W;Z)\leq\phi(\min\{a,b\}).
-$$
+```
 
 Equality holds exactly for independent pairs or DSBS.
 
 **Strictness for unequal coefficients.** If $a\ne b$, then
 
-$$
+```math
 I(W;Z)<\phi(\min\{a,b\}).
-$$
+```
 
 **Attainment under equal prescribed coefficients.** For every $t\in[0,1]$,
 there exists a DSBS with $a=b=t$ and $I(W;Z)=\phi(t)$. Thus the optimum under
