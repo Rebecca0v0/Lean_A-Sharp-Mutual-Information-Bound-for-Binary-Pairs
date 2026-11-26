@@ -158,11 +158,6 @@ These corollaries cover every $n\geq0$, with the empty sample handled as well.
 | Data processing | [FiniteProcessing.lean](BinaryPairBound/FiniteProcessing.lean); `FiniteInfo.iid_binary_contraction_le` in [Section10.lean](BinaryPairBound/Section10.lean) |
 | IID observations on any probability space | [Section10RandomVariables.lean](BinaryPairBound/Section10RandomVariables.lean): `iid_joint_random_variable_bound`, `iid_dsbs_random_variable_bound_source` |
 
-Boolean functions have type `(Fin n → α) → Bool`. The theorem
-`FiniteInfo.iid_joint_binary_mass` verifies the actual product-law pushforward
-probabilities. `HasIIDJointLaw` expresses the IID joint-atom product formula,
-and `binaryLaw_iid_joint_eq` identifies the event-based law with that pushforward.
-
 ## 4. Directionality of the contraction coefficient
 
 The paper's concluding discussion considers both directions for the same
