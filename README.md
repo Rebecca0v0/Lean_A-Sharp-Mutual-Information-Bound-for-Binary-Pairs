@@ -146,9 +146,6 @@ of the resulting binary pair. Tensorization and data processing are proved
 within the project, including cases where some atom probabilities are zero.
 
 These corollaries cover every $n\geq0$, with the empty sample handled as well.
-They are available both for explicitly constructed finite product laws and for
-measurable random variables on an arbitrary probability space satisfying the
-usual IID joint-law condition.
 
 **Lean entry points:**
 
