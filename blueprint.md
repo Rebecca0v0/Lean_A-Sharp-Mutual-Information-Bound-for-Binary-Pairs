@@ -5,21 +5,9 @@ arXiv:2611.02392v1 (2 November 2026). Equation numbers refer to that version.
 
 ## Completed target
 
-`MainProof.lean` proves the unchanged scalar specification:
-
-```lean
-mainTheorem : MainTheorem
-```
-
-Here `MainTheorem = SharpBound ∧ EqualityClassification`, quantifying over
-all valid `(s,c,d) ∈ [0,1]^3`. The final proof has no contact, optimization,
-boundary, or implicit-family premise. The former `MaximizersMerge` obligation
-is now inhabited by `maximizersMerge`.
-
-The two exposed conclusions are `sharp_bound` and `sharp_equality_iff`.
-`fixed_cap_optimum` also proves the exact constrained optimum in (3.1).
-The same theorem now holds for measurable binary random variables on any
-probability space, and the finite-source consequences in Section 10 are proved.
+All intermediate results used to prove Theorem 2.1 are proved within this
+project. Applying `mainTheorem` requires no additional assumptions about
+those results.
 
 ## Definitions
 
