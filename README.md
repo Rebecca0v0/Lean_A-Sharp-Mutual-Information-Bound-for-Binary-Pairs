@@ -49,10 +49,6 @@ Here $H$ is binary entropy in nats. Independence of random variables is
 mathlib's standard `IndepFun`; the DSBS condition is equality of opposite
 joint probabilities: $p_{00}=p_{11}$ and $p_{01}=p_{10}$.
 
-**Why the usual coefficient becomes $S(s,c,d)$.** We now explain the
-coefficient row in the table above. The purpose is to show that the quantity
-called $S$ in the scalar proof is the usual $s^{\ast}(W;Z)$.
-
 **AGKN definition: full-support $P$, with $Q=P$ excluded.** Let $P$ be the distribution of $W$
 and let $K$ be the channel giving the conditional distribution of $Z$ given
 $W$. Keep this channel fixed, and replace the input distribution $P$ by another
