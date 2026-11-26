@@ -60,8 +60,8 @@ s^{\ast}(P,K)
 \frac{D(QK\Vert PK)}{D(Q\Vert P)}.
 ```
 
-Here $Q$ ranges over probability laws on the same input alphabet.
-**If no $Q$ satisfies the constraint, set $s^{\ast}(P,K)=0$.**
+Here Q ranges over probability laws on the same input alphabet.
+**If no Q satisfies the constraint, set $s^{\ast}(P,K)=0$.**
 
 Lean proves that this coefficient equals the paper's $S(s,c,d)$ under the
 binary parametrization above, including deterministic cases.
@@ -76,15 +76,14 @@ coefficient used by the proofs is verified in `FiniteKLStandard`.
 
 **Lean entry points** (names below are in the `BinaryPairBound` namespace):
 
-| Correspondence | File and declarations |
+| Statement | File and declarations |
 |---|---|
-| Joint probabilities, parameters, entropy, and equality conditions | [BinaryLaw.lean](BinaryPairBound/BinaryLaw.lean): `BinaryLaw.mass00`–`BinaryLaw.mass11`, `BinaryLaw.mutualInfo_eq`, `BinaryLaw.independent_iff`, `BinaryLaw.dsbs_iff` |
-| Actual random variables and standard independence | [RandomVariables.lean](BinaryPairBound/RandomVariables.lean): `binaryLaw`, `binaryLaw.independent_iff`, `binaryMutualInfo_eq_entropy`, `binaryContraction_eq_coefficient` |
-| General definition, with $Q=P$ excluded | [FiniteKLStandard.lean](BinaryPairBound/FiniteKLStandard.lean): `FiniteInfo.standardKLRatios`, `FiniteInfo.standardKLCoefficient`, `FiniteInfo.coefficient_eq_standardKLCoefficient` |
-| Positive KL denominator and deterministic inputs | [FiniteKLStandard.lean](BinaryPairBound/FiniteKLStandard.lean): `FiniteInfo.relativeEntropy_pos_iff`, `FiniteInfo.coefficient_eq_sup_positive_KL`, `FiniteInfo.coefficient_eq_zero_of_pointMass` |
-| Binary coefficient equals the paper's $S$, including deterministic cases | [BinaryKernel.lean](BinaryPairBound/BinaryKernel.lean): `FiniteInfo.coefficient_binary` |
-| Full-support special case | [FiniteKLAGKN.lean](BinaryPairBound/FiniteKLAGKN.lean): `FiniteInfo.agknCoefficient`, `FiniteInfo.agknCoefficient_eq_coefficient`, `FiniteInfo.agknCoefficient_binary` |
-| Finite joint laws and conditional channels | [FiniteJoint.lean](BinaryPairBound/FiniteJoint.lean): `FiniteInfo.joint_conditional_mass`, `FiniteInfo.jointCoefficient_default_irrel` |
+| The constructed joint law has $p_{ab}=\Pr(W=a,Z=b)$ | [RandomVariables.lean](BinaryPairBound/RandomVariables.lean): `binaryLaw` |
+| The parameters $s,c,d$ reproduce the displayed joint-probability matrix | [BinaryLaw.lean](BinaryPairBound/BinaryLaw.lean): `BinaryLaw.mass00`, `BinaryLaw.mass01`, `BinaryLaw.mass10`, `BinaryLaw.mass11` |
+| $I(W;Z)=J(s,c,d)$ | [BinaryLaw.lean](BinaryPairBound/BinaryLaw.lean): `BinaryLaw.mutualInfo_eq` |
+| The KL-ratio definition above gives $s^{\ast}(W;Z)=S(s,c,d)$ | [FiniteKLStandard.lean](BinaryPairBound/FiniteKLStandard.lean): `FiniteInfo.coefficient_eq_standardKLCoefficient`; [BinaryKernel.lean](BinaryPairBound/BinaryKernel.lean): `FiniteInfo.coefficient_binary` |
+| $W,Z$ are independent iff $s=0$, $s=1$, or $c+d=1$ | [BinaryLaw.lean](BinaryPairBound/BinaryLaw.lean): `BinaryLaw.independent_iff`; [RandomVariables.lean](BinaryPairBound/RandomVariables.lean): `binaryLaw.independent_iff` |
+| The joint law is DSBS iff $s=1/2$ and $c=d$ | [BinaryLaw.lean](BinaryPairBound/BinaryLaw.lean): `BinaryLaw.dsbs_iff` |
 
 </details>
 
