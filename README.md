@@ -66,9 +66,6 @@ Here Q ranges over probability laws on the same input alphabet.
 Lean proves that this coefficient equals the paper's $S(s,c,d)$ under the
 binary parametrization above, including deterministic cases.
 
-<details>
-<summary>Lean definitions and proof locations</summary>
-
 On finite alphabets, $0\lt D(Q\Vert P)\lt\infty$ is encoded by
 `Supported Q P` and `Q ≠ P`. `standardKLCoefficient` uses this domain and an
 explicit zero value when it is empty. Its equality with the internal
@@ -84,8 +81,6 @@ coefficient used by the proofs is verified in `FiniteKLStandard`.
 | The KL-ratio definition above gives $s^{\ast}(W;Z)=S(s,c,d)$ | [FiniteKLStandard.lean](BinaryPairBound/FiniteKLStandard.lean): `FiniteInfo.coefficient_eq_standardKLCoefficient`; [BinaryKernel.lean](BinaryPairBound/BinaryKernel.lean): `FiniteInfo.coefficient_binary` |
 | $W,Z$ are independent iff $s=0$, $s=1$, or $c+d=1$ | [BinaryLaw.lean](BinaryPairBound/BinaryLaw.lean): `BinaryLaw.independent_iff`; [RandomVariables.lean](BinaryPairBound/RandomVariables.lean): `binaryLaw.independent_iff` |
 | The joint law is DSBS iff $s=1/2$ and $c=d$ | [BinaryLaw.lean](BinaryPairBound/BinaryLaw.lean): `BinaryLaw.dsbs_iff` |
-
-</details>
 
 ## 2. Theorem 2.1: the main bound and equality cases
 
