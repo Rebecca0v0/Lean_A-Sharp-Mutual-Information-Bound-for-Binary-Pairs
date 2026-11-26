@@ -3,9 +3,6 @@
 Source: Qianmian Guo, *A Sharp Mutual Information Bound for Binary Pairs*,
 arXiv:2611.02392v1 (2 November 2026). Equation numbers refer to that version.
 
-Source PDF SHA-256:
-`dae0f9de685a17492b61838adb0ae72a1a344b518c4456bf55584328614dbe22`.
-
 ## Completed target
 
 `MainProof.lean` proves the unchanged scalar specification:
