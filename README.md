@@ -159,13 +159,6 @@ properties used to prove them.
 | **Tensorization:** $s^{\ast}(X^n;Y^n)=s^{\ast}(X;Y)$ for $n\geq1$. Independent repetition leaves the directed KL contraction coefficient unchanged. | [FiniteTensorization.lean](BinaryPairBound/FiniteTensorization.lean): `FiniteInfo.coefficient_power_succ` |
 | **Data processing:** $s^{\ast}(f(X^n);g(Y^n))\leq s^{\ast}(X^n;Y^n)$. Applying $f$ and $g$ separately cannot increase the directed KL contraction coefficient. | [FiniteProcessing.lean](BinaryPairBound/FiniteProcessing.lean): `FiniteInfo.processedLaw_contraction_le` |
 
-The same two bounds also apply to measurable random variables already defined
-on any probability space, assuming the pairs $(X_i,Y_i)$ are IID.
-[Section10RandomVariables.lean](BinaryPairBound/Section10RandomVariables.lean)
-matches their four binary-output probabilities with those used in
-`Section10.lean`, then applies the bounds above. Its two entry points are
-`iid_joint_random_variable_bound` and `iid_dsbs_random_variable_bound_source`.
-
 ## 4. Directionality of the contraction coefficient
 
 The paper's concluding discussion considers both directions for the same
@@ -205,7 +198,7 @@ upper bound; it does not identify the sharp replacement bound.
 | Optimum under equal prescribed coefficients | [ReverseChannel.lean](BinaryPairBound/ReverseChannel.lean): `equal_directed_cap_optimum` |
 | Bounds for actual random variables in both orders | [RandomVariableDirections.lean](BinaryPairBound/RandomVariableDirections.lean): `binary_random_variable_bidirectional_bound`, `binary_random_variable_bidirectional_strict` |
 
-## Verification
+## 5. Verification
 
 The project uses Lean **4.35.0** and mathlib **4.35.0**, pinned to mathlib
 commit `56a005855ea17e0b0958f73ec801ae140b0a1679` in `lake-manifest.json`.
