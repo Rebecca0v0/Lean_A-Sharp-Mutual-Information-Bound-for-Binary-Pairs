@@ -26,9 +26,11 @@ $p_{ab}=\Pr(W=a,Z=b)$ and connects them to the following parameters:
 | Channel slope | $k=1-c-d$ |
 | Output-one probability $\Pr(Z=1)$ | $q(s)=c+ks$ |
 
-When a conditioning event has probability zero, its conditional parameter is
-set to zero. The project proves that these parameters recover all four joint
-probabilities, including those cases:
+If $\Pr(W=0)=0$, the conditional parameter $c$ is set to zero; if
+$\Pr(W=1)=0$, $d$ is set to zero. These are choices for conditioning events
+that never occur. They do not affect the joint law, because the corresponding
+row is multiplied by zero. The project proves the following formula in all
+cases:
 
 ```math
 \begin{pmatrix}p_{00}&p_{01}\\p_{10}&p_{11}\end{pmatrix}
@@ -49,29 +51,61 @@ Here $H$ is binary entropy in nats. Independence of random variables is
 mathlib's standard `IndepFun`; the DSBS condition is equality of opposite
 joint probabilities: $p_{00}=p_{11}$ and $p_{01}=p_{10}$.
 
-**AGKN definition: full-support $P$, with $Q=P$ excluded.** Let $P$ be the distribution of $W$
-and let $K$ be the channel giving the conditional distribution of $Z$ given
-$W$. Keep this channel fixed, and replace the input distribution $P$ by another
-distribution $Q$. The original output distribution is $PK$; the new one is $QK$.
+**The coefficient for a finite alphabet: $P$ may have zeros.** Let $P$ be an
+input distribution and $K$ a fixed channel. We compare $P$ with another input
+distribution $Q$ on the same finite alphabet. Passing both through $K$ gives
+the output distributions $PK$ and $QK$.
 
-We follow [AGKN, Definition 4](https://arxiv.org/pdf/1304.6133#page=2).
-The input alphabet is finite, and we require $P(a)>0$ at every input symbol
-$a$: **$P$ must have full support**. The coefficient is defined by
+Neither $P$ nor $Q$ is required to have full support. The distributions $Q$
+used in the definition must satisfy two conditions:
+
+1. **$Q\ne P$:** the input distribution must actually change.
+2. **$P(a)=0\Rightarrow Q(a)=0$ for every symbol $a$:** $Q$ may redistribute
+   probability only among symbols that are possible under $P$.
+
+The second condition is denoted by $Q\ll P$. It guarantees that $D(Q\Vert P)$
+is finite; together with $Q\ne P$, it makes this denominator strictly positive.
+For example, with $P=(1/2,1/2,0)$, the law $Q=(1,0,0)$ is allowed, while
+$Q=(0,0,1)$ is excluded because $D(Q\Vert P)=\infty$.
+
+When at least one such $Q$ exists, define
 
 ```math
-s^{\ast}(P,K)=\sup_{Q\ne P}\frac{D(QK\Vert PK)}{D(Q\Vert P)}.
+s^{\ast}(P,K)
+=\sup_{\substack{Q\ne P\\Q\ll P}}
+\frac{D(QK\Vert PK)}{D(Q\Vert P)}.
 ```
 
-The coefficient is the supremum of this ratio over all choices of
-$Q\ne P$ on the same input alphabet. **$Q$ itself need not have full support.**
-Full support of $P$ makes the denominator finite; $Q\ne P$ makes it positive.
-**Both requirements are written directly into the Lean definition:** it takes
-a proof that $P$ has full support and restricts its supremum to $Q\ne P$.
+**If no such $Q$ exists, define $s^{\ast}(P,K)=0$.** This is an explicit
+convention for the empty case. The unchanged law $Q=P$ is excluded throughout.
 
-**Write the same definition in the paper's binary parameters.** A binary
-input distribution is determined by its probability of being $1$. Thus write
-$P=(1-s,s)$ and $Q=(1-x,x)$, with $x\in[0,1]$. The channel is determined by
-$c,d$, and its output-one probability is $q(x)=c+(1-c-d)x$. Consequently,
+**Why deterministic inputs give zero.** Suppose the input is always $0$, so
+$P=(1,0)$ on the alphabet $\{0,1\}$. The support condition forces $Q(1)=0$,
+and hence $Q(0)=1$. The only supported law is therefore $Q=P$. Once $Q=P$ is
+excluded, no candidate remains, so the zero convention above applies.
+The same argument works for an input concentrated on any single symbol.
+
+A deterministic output also gives coefficient zero: every allowed $Q$
+produces $QK=PK$, so every KL numerator is zero.
+
+**Full support gives the AGKN formula.** If $P(a)>0$ at every input symbol,
+then there is no symbol with $P(a)=0$. Every $Q$ automatically satisfies
+$Q\ll P$, so the support condition removes no distribution. The formula
+simplifies to
+
+```math
+s^{\ast}(P,K)=\sup_{Q\ne P}\frac{D(QK\Vert PK)}{D(Q\Vert P)},
+```
+
+with the same zero convention if there is no alternative. This is the
+full-support setting of [AGKN, Definition 4](https://arxiv.org/pdf/1304.6133#page=2).
+Only $P$ needs full support here; $Q$ may still have zero probabilities.
+
+**Write the coefficient in the paper's binary parameters.** For the binary
+pair $W,Z$, take $P$ to be the law of $W$ and $K$ its channel to $Z$.
+When both marginals are non-deterministic, write $P=(1-s,s)$ and
+$Q=(1-x,x)$, where $0<s<1$ and $x\in[0,1]$. The channel is determined by
+$c,d$, and its output-one probability is $q(x)=c+(1-c-d)x$. Thus
 
 ```math
 \begin{aligned}
@@ -80,9 +114,9 @@ Q&=\mathrm{Bern}(x), & QK&=\mathrm{Bern}(q(x)).
 \end{aligned}
 ```
 
-Here $\mathrm{Bern}(t)$ means the distribution $(1-t,t)$.
-Choosing $Q\ne P$ is exactly choosing $x\ne s$. Substituting the four
-distributions above into the usual definition gives equation (2.2) of the paper:
+Here $\mathrm{Bern}(t)$ means the distribution $(1-t,t)$. Since $P$ has full
+support, all $x\in[0,1]$ are allowed except $x=s$, which would give $Q=P$.
+Substitution gives equation (2.2) of the paper:
 
 ```math
 s^{\ast}(W;Z)
@@ -92,39 +126,34 @@ s^{\ast}(W;Z)
 =S(s,c,d).
 ```
 
-This is the formula when both binary marginals are non-deterministic.
-A deterministic output gives coefficient zero. A deterministic binary input
-is handled by the separate extension below, also with value zero.
+When either variable is deterministic, both the coefficient above and the
+paper's $S(s,c,d)$ are zero, by the cases already explained.
 
-**What Lean proves here.** The AGKN definition above equals the coefficient
-used in the existing proofs, and for binary inputs with $0<s<1$ it equals
-$S(s,c,d)$.
-Thus the later bounds apply to the coefficient defined directly by the formula
-above. The definition and these equalities are in
-[FiniteKLAGKN.lean](BinaryPairBound/FiniteKLAGKN.lean).
+**What Lean verifies.** The definition allowing zeros in $P$, with $Q=P$
+explicitly excluded, equals the coefficient used in the existing proofs.
+For binary pairs it equals $S(s,c,d)$, including deterministic cases. Thus
+bounds proved using $S$ apply to the coefficient defined here.
 
 <details>
-<summary>Lean proof locations and the separate extension to non-full-support laws</summary>
+<summary>Lean definitions, proof locations, and the full-support special case</summary>
 
-**The AGKN entry point.** `agknCoefficient P K hP` requires
-`hP : ∀ a, 0 < P.mass a`. Its candidate set explicitly requires `Q ≠ P`;
-there is no additional support restriction on $Q$. Every candidate has a
-strictly positive KL denominator. If there is no distinct input law (a
-one-symbol input alphabet), the definition returns zero. Deterministic outputs
-also give zero, in accordance with AGKN's convention.
+**General definition.** In [FiniteKLStandard.lean](BinaryPairBound/FiniteKLStandard.lean),
+`standardKLRatios` directly requires `Supported Q P` and `Q ≠ P`.
+`Supported Q P` means exactly $P(a)=0\Rightarrow Q(a)=0$.
+`standardKLCoefficient` takes the supremum of this set when it is nonempty,
+and returns zero otherwise. No full-support assumption on $P$ is required.
+This is the finite-alphabet form of the domain $0<D(Q\Vert P)<\infty$
+in [Polyanskiy–Wu, equation (5)](https://arxiv.org/pdf/1508.06025#page=5).
 
-**Separate extension for zero-probability symbols.** The existing proofs also
-handle laws that do not have full support on the declared alphabet. This
-broader interface is retained separately. Its KL definition excludes $Q=P$
-and requires $P(a)=0\Rightarrow Q(a)=0$, so that the KL divergence is finite.
-It returns zero when no such alternative exists, including deterministic
-inputs. Under full support it agrees with the AGKN definition above.
+**Connection to the proofs.** `coefficient_eq_standardKLCoefficient` proves
+that this definition equals the internal entropy-ratio coefficient. The
+support condition is essential to interpreting the implementation's
+real-valued KL sums as ordinary KL; laws with infinite KL are excluded.
 
-**Connection to the existing proofs.** The internal coefficient is expressed
-using entropy ratios. Its equality with the directly defined AGKN coefficient
-is proved in Lean. The internal formula is a tool for the proofs; the AGKN
-entry point requires full support and excludes the unchanged input from the
-start.
+**Full-support special case.** [FiniteKLAGKN.lean](BinaryPairBound/FiniteKLAGKN.lean)
+also provides `agknCoefficient P K hP`, where `hP` proves that every input
+probability is positive. Its only restriction on $Q$ is `Q ≠ P`. The project
+proves that it agrees with the general definition whenever $P$ has full support.
 
 **Lean entry points** (names below are in the `BinaryPairBound` namespace):
 
@@ -132,11 +161,10 @@ start.
 |---|---|
 | Joint probabilities, parameters, entropy, and equality conditions | [BinaryLaw.lean](BinaryPairBound/BinaryLaw.lean): `BinaryLaw.mass00`–`BinaryLaw.mass11`, `BinaryLaw.mutualInfo_eq`, `BinaryLaw.independent_iff`, `BinaryLaw.dsbs_iff` |
 | Actual random variables and standard independence | [RandomVariables.lean](BinaryPairBound/RandomVariables.lean): `binaryLaw`, `binaryLaw.independent_iff`, `binaryMutualInfo_eq_entropy`, `binaryContraction_eq_coefficient` |
-| Direct AGKN definition and its equality with the internal coefficient | [FiniteKLAGKN.lean](BinaryPairBound/FiniteKLAGKN.lean): `FiniteInfo.agknCoefficient`, `FiniteInfo.agknCoefficient_eq_coefficient` |
-| Separate extension to non-full-support laws | [FiniteKLStandard.lean](BinaryPairBound/FiniteKLStandard.lean): `FiniteInfo.standardKLCoefficient`, `FiniteInfo.coefficient_eq_standardKLCoefficient` |
+| General definition, with $Q=P$ excluded | [FiniteKLStandard.lean](BinaryPairBound/FiniteKLStandard.lean): `FiniteInfo.standardKLRatios`, `FiniteInfo.standardKLCoefficient`, `FiniteInfo.coefficient_eq_standardKLCoefficient` |
 | Positive KL denominator and deterministic inputs | [FiniteKLStandard.lean](BinaryPairBound/FiniteKLStandard.lean): `FiniteInfo.relativeEntropy_pos_iff`, `FiniteInfo.coefficient_eq_sup_positive_KL`, `FiniteInfo.coefficient_eq_zero_of_pointMass` |
-| AGKN coefficient equals the paper's $S$ for binary inputs with full support | [FiniteKLAGKN.lean](BinaryPairBound/FiniteKLAGKN.lean): `FiniteInfo.agknCoefficient_binary` |
-| General binary coefficient, including deterministic inputs | [BinaryKernel.lean](BinaryPairBound/BinaryKernel.lean): `FiniteInfo.coefficient_binary` |
+| Binary coefficient equals the paper's $S$, including deterministic cases | [BinaryKernel.lean](BinaryPairBound/BinaryKernel.lean): `FiniteInfo.coefficient_binary` |
+| Full-support special case | [FiniteKLAGKN.lean](BinaryPairBound/FiniteKLAGKN.lean): `FiniteInfo.agknCoefficient`, `FiniteInfo.agknCoefficient_eq_coefficient`, `FiniteInfo.agknCoefficient_binary` |
 | Finite joint laws and conditional channels | [FiniteJoint.lean](BinaryPairBound/FiniteJoint.lean): `FiniteInfo.joint_conditional_mass`, `FiniteInfo.jointCoefficient_default_irrel` |
 
 </details>
@@ -333,12 +361,12 @@ alternative arguments used in the formal proof.
   with crossover probability anywhere in `[0,1]`.
 - Binary random variables take values in `Bool`; the sample space and its
   probability measure are arbitrary. Independence is mathlib's `IndepFun`.
-- The primary AGKN interface requires full-support input $P$ and explicitly
-  excludes $Q=P$ in its definition. `FiniteKLAGKN` proves equality with the
-  internal coefficient used by the existing theorems.
-- The separate extension to non-full-support laws uses `Supported Q P` and
-  $Q\ne P$, with zero when no alternative exists. This extension covers
-  deterministic sources and zero-probability atoms in the general theorems.
+- The general coefficient allows zero probabilities in $P$ and directly
+  requires `Supported Q P` and $Q\ne P$. It is defined to be zero when no
+  candidate exists, including deterministic inputs. `FiniteKLStandard` proves
+  equality with the internal coefficient used by the existing theorems.
+- `FiniteKLAGKN` provides the full-support special case, with only $Q\ne P$
+  imposed on the alternative law, and proves agreement with the general coefficient.
 - Arbitrary finite joint laws are reconstructed from their marginal and
   conditional channel. Choices on null input atoms do not affect the coefficient.
 - Contact existence is proved at the actual cap `S(s)` for every nonmerging
