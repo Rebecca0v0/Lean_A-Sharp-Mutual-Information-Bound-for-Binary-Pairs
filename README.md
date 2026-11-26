@@ -49,40 +49,60 @@ Here $H$ is binary entropy in nats. Independence of random variables is
 mathlib's standard `IndepFun`; the DSBS condition is equality of opposite
 joint probabilities: $p_{00}=p_{11}$ and $p_{01}=p_{10}$.
 
-**Which definitions of the contraction coefficient are being connected?**
-The project uses an internal definition, `FiniteInfo.coefficient`, based on
-entropy ratios of nonnegative functions. Such functions represent changes of
-input law through $Q(x)=P(x)f(x)$ after normalization. The connection proved in
-[FiniteKL.lean](BinaryPairBound/FiniteKL.lean) identifies this definition with
-the KL-ratio formulation for finite alphabets.
-
-For an input law $P$ and a channel $K$, the usual mathematical definition is
+**Usual definition under full support.** First take a finite input alphabet
+on which $P(x)>0$ for every input symbol $x$. This is called **full support**.
+The original [AGKN paper, pp. 1–2](https://arxiv.org/pdf/1304.6133) assumes
+positive marginal probabilities before giving its definition of the coefficient.
+For a fixed channel $K$, the usual definition in this setting is
 
 ```math
-s^{\ast}(P,K)=\sup_{\substack{Q\ll P\\Q\ne P}}
-\frac{D(QK\Vert PK)}{D(Q\Vert P)}.
+s^{\ast}(P,K)=\sup_{Q\ne P}\frac{D(QK\Vert PK)}{D(Q\Vert P)}.
 ```
 
-Here $PK$ and $QK$ are the output laws through the same channel. The two
-restrictions on $Q$ have different purposes:
+The supremum is over all probability laws $Q$ on the same input alphabet
+other than $P$. Here $PK$ and $QK$ are the output laws through the same channel.
+Full support makes $D(Q\Vert P)$ finite, and $Q\ne P$ makes it positive.
+In the paper's binary setting, $P=(1-s,s)$ has full support when $0<s<1$;
+writing $Q=(1-x,x)$ turns $Q\ne P$ into precisely $x\ne s$ in equation (2.2).
+Deterministic input or output is treated separately, with coefficient zero.
 
-- $Q\ll P$: $Q$ assigns zero probability wherever $P$ does.
-- $Q\ne P$: the input law actually changes, so the KL denominator is positive.
+**Connection to the paper's parameters.** For binary input and output,
+`FiniteInfo.coefficient_binary` proves that the coefficient used by the
+finite-alphabet part of the project equals the paper's $S(s,c,d)$.
+The implementation conventions behind this connection are described below.
 
-For a deterministic input law there is no supported alternative $Q\ne P$;
-the coefficient is defined to be zero in that case.
+<details>
+<summary>Implementation notes: support restrictions and the extra zero test</summary>
 
-**Internal zero convention.** The exact statement `coefficient_eq_sup_KL`
-uses a set of KL ratios that also includes $Q=P$. Lean's real division assigns
-zero to that extra $0/0$ term. Adding this zero does not change the supremum
-of the nonnegative ratios when alternatives exist, and gives zero when none
-exist. This is an implementation convention; the ordinary KL ratio at $Q=P$
-is undefined.
+**Internal formulation.** `FiniteInfo.coefficient` is defined using entropy
+ratios of nonnegative functions. The theorem `coefficient_eq_sup_KL` in
+[FiniteKL.lean](BinaryPairBound/FiniteKL.lean) identifies it with a set of
+KL ratios, using the following conventions.
 
-Finally, for binary input and output, `FiniteInfo.coefficient_binary` proves
-that this finite-alphabet coefficient equals the paper's scalar $S(s,c,d)$.
-These are the two connections: the internal entropy formulation to KL ratios,
-and the binary KL coefficient to the paper's parameters.
+**Zero-probability input symbols.** The Lean interface also allows finite
+alphabets containing symbols with $P(x)=0$. In that setting it requires
+$Q\ll P$, meaning $P(x)=0$ implies $Q(x)=0$, written `Supported Q P` in Lean.
+This makes the KL sum finite and is equivalent to taking alternative input
+laws on the support of $P$. Under the full-support assumption above, every
+$Q$ automatically satisfies this condition: it removes no candidate from the
+displayed definition. The current implementation uses real-valued KL sums;
+it does not interpret unsupported alternatives whose ordinary KL is infinite.
+
+**The unchanged input law.** The usual definition above excludes $Q=P$.
+Substituting it anyway would give
+
+```math
+\frac{D(PK\Vert PK)}{D(P\Vert P)}=\frac{0}{0},
+```
+
+which is undefined in ordinary arithmetic. The internal set of test ratios
+includes this extra test, and Lean's real division assigns it zero. Adding
+one zero does not change the supremum of the nonnegative ratios when other
+tests exist. If there is no supported alternative $Q\ne P$, as for a
+deterministic input, this convention gives coefficient zero. This is an
+internal representation choice, separate from the usual definition above.
+
+</details>
 
 **Lean entry points** (names below are in the `BinaryPairBound` namespace):
 
