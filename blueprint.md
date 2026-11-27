@@ -32,7 +32,7 @@ those results.
 ## Dependency graph
 
 Each box names one or more files in [`BinaryPairBound/`](BinaryPairBound/).
-An arrow `A → B` means that B uses results proved in A. These are selected
+An arrow `A → B` means that B uses definitions or proved results from A. These are selected
 proof dependencies; intermediate lemmas and other dependencies are omitted.
 
 ### Assembling Theorem 2.1
