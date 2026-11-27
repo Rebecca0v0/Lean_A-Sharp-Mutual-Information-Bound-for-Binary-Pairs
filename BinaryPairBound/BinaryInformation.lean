@@ -11,25 +11,13 @@ public import Mathlib.Tactic.Linarith
 public import Mathlib.Tactic.Ring
 
 /-!
-# Binary entropy, KL divergence, and equation (4.1)
-
-在同一文件中完整读到参数定义、熵与KL、实际导数、带lambda的切线公式(4.1)，以及系数与KL上界的等价关系。
-
-Read the sections below in order: they develop one mathematical goal in this file.
-All theorem names and mathematical statements from the original development are retained.
-
-For equation (4.1), the definitions below introduce the actual curve
-F_lambda(x) = H(q(x)) - lambda H(x) and its derivative-based tangent.
-The proof then establishes H's derivative, applies the chain rule, and combines
-the two entropy-gap identities. The reference probabilities s and q(s) lie in
-(0,1); test probabilities x may include 0 and 1.
+# From definitions to (4.1)
 -/
 
 namespace BinaryPairBound
 
-/-! ## Parameters, entropy, KL, and the lambda curve
-
-定义文章使用的概率参数、互信息 J、系数 S 和取等条件；先检查各个定义允许哪些输入。
+/-!
+## Parameters, entropy, KL, and the lambda curve
 -/
 
 @[expose] public noncomputable section Definitions
