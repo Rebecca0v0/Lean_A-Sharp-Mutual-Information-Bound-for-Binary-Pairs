@@ -1,40 +1,31 @@
 module
 
-public import BinaryPairBound.MainProof
+public import BinaryPairBound.MainTheorem
+public import BinaryPairBound.BinaryRandomVariables
 
-/-! # Bayes reversal of a binary channel and two-direction bounds
+/-!
+# Bidirectional bounds, strictness, and attainment
 
-The conditional probabilities below are computed from the joint law, with the
-usual arbitrary zero choice on null conditioning events. All statements include
-deterministic marginals.
+把反向信道、两方向最小上界、系数不等的严格性及相同系数的达到结果完整连接到实际随机变量。
+
+Read the sections below in order: they develop one mathematical goal in this file.
+All theorem names and mathematical statements from the original development are retained.
 -/
 
-noncomputable section
-@[expose] public section
 namespace BinaryPairBound
+
+/-! ## Bayes reversal and scalar bidirectional conclusions
+
+交换输入和输出得到反向信道，并证明双向最小上界、系数不等时严格不等式及系数相等时的达到例子。
+-/
+
+@[expose] public noncomputable section ReverseChannel
 
 /-- Conditional probability `P(W = 1 | Z = 0)`. -/
 def reverseC (s c d : ℝ) : ℝ := s * d / (1 - q c d s)
 
 /-- Conditional probability `P(W = 0 | Z = 1)`. -/
 def reverseD (s c d : ℝ) : ℝ := (1 - s) * c / q c d s
-
-/-- The entropy of a two-cell row, without any full-support assumption. -/
-theorem binary_mass_entropy {a b : ℝ} (ha : 0 ≤ a) (hb : 0 ≤ b) :
-    (a + b) * H (b / (a + b)) =
-      Real.negMulLog a + Real.negMulLog b - Real.negMulLog (a + b) := by
-  by_cases hab : a + b = 0
-  · have ha0 : a = 0 := by linarith
-    have hb0 : b = 0 := by linarith
-    simp [ha0, hb0, H]
-  have h1 : (a + b) * (b / (a + b)) = b := by field_simp
-  have h2 : (a + b) * (1 - b / (a + b)) = a := by field_simp; ring
-  have e1 := Real.negMulLog_mul (a + b) (b / (a + b))
-  have e2 := Real.negMulLog_mul (a + b) (1 - b / (a + b))
-  rw [h1] at e1
-  rw [h2] at e2
-  rw [H, Real.binEntropy_eq_negMulLog_add_negMulLog_one_sub]
-  nlinarith
 
 lemma reverseC_mem_Icc {s c d : ℝ} (hv : Valid s c d) :
     reverseC s c d ∈ Set.Icc (0 : ℝ) 1 := by
@@ -241,5 +232,89 @@ theorem equal_directed_cap_optimum {lam : ℝ} (hlam : lam ∈ Set.Icc (0 : ℝ)
     hv, hS, hr, J_symmetricCrossover lam⟩, ?_⟩
   intro s c d hvalid hforward _
   simpa only [hforward] using sharp_bound hvalid
+
+end ReverseChannel
+
+/-! ## Bidirectional conclusions for actual random variables
+
+把正反向系数的最小上界及系数不等时的严格不等式，写成实际二元随机变量的结论。
+-/
+
+@[expose] public noncomputable section RandomVariableDirections
+
+namespace BinaryLaw
+
+theorem ext_mass {P Q : BinaryLaw} (h : P.mass = Q.mass) : P = Q := by
+  cases P; cases Q; cases h; rfl
+
+/-- Swap the coordinates of the actual joint probability table. -/
+def swap (P : BinaryLaw) : BinaryLaw where
+  mass a b := P.mass b a
+  nonneg a b := P.nonneg b a
+  total := by have h := P.total; linarith
+
+lemma swap_input (P : BinaryLaw) : P.swap.input = P.output := rfl
+
+lemma swap_left (P : BinaryLaw) : P.swap.left = reverseC P.input P.left P.right := by
+  unfold left swap reverseC
+  change P.mass true false / (1 - P.output) = _
+  rw [P.output_eq, P.mass10]
+  rfl
+
+lemma swap_right (P : BinaryLaw) : P.swap.right = reverseD P.input P.left P.right := by
+  unfold right swap reverseD
+  change P.mass false true / P.output = _
+  rw [P.output_eq, P.mass01]
+  rfl
+
+lemma swap_contraction (P : BinaryLaw) :
+    P.swap.contraction = reverseS P.input P.left P.right := by
+  rw [contraction, swap_input, swap_left, swap_right, P.output_eq]
+  rfl
+
+/-- The same sharp bound applied in both directions. -/
+theorem bidirectional_bound (P : BinaryLaw) :
+    P.mutualInfo ≤ phi (min P.contraction P.swap.contraction) := by
+  rw [P.mutualInfo_eq, P.swap_contraction]
+  exact BinaryPairBound.bidirectional_bound P.valid
+
+/-- Unequal directed coefficients force strictness. -/
+theorem bidirectional_strict (P : BinaryLaw) (hne : P.contraction ≠ P.swap.contraction) :
+    P.mutualInfo < phi (min P.contraction P.swap.contraction) := by
+  rw [P.mutualInfo_eq, P.swap_contraction]
+  rw [P.swap_contraction] at hne
+  exact BinaryPairBound.bidirectional_strict_of_ne P.valid hne
+
+end BinaryLaw
+
+open MeasureTheory
+variable {Ω : Type*} [MeasurableSpace Ω] (μ : Measure Ω) [IsProbabilityMeasure μ]
+
+lemma binaryLaw_swap (W Z : Ω → Bool) (hW : Measurable W) (hZ : Measurable Z) :
+    binaryLaw μ Z W hZ hW = (binaryLaw μ W Z hW hZ).swap := by
+  apply BinaryLaw.ext_mass
+  funext a b
+  simp only [binaryLaw, BinaryLaw.swap, Set.inter_comm]
+
+/-- Section 10's minimum bound, using the coefficient of each actual variable order. -/
+theorem binary_random_variable_bidirectional_bound (W Z : Ω → Bool)
+    (hW : Measurable W) (hZ : Measurable Z) :
+    binaryMutualInfo μ W Z hW hZ ≤
+      phi (min (binaryContraction μ W Z hW hZ) (binaryContraction μ Z W hZ hW)) := by
+  unfold binaryMutualInfo binaryContraction
+  rw [binaryLaw_swap]
+  exact BinaryLaw.bidirectional_bound _
+
+/-- Section 10's nonattainment assertion for unequal directed coefficients. -/
+theorem binary_random_variable_bidirectional_strict (W Z : Ω → Bool)
+    (hW : Measurable W) (hZ : Measurable Z)
+    (hne : binaryContraction μ W Z hW hZ ≠ binaryContraction μ Z W hZ hW) :
+    binaryMutualInfo μ W Z hW hZ <
+      phi (min (binaryContraction μ W Z hW hZ) (binaryContraction μ Z W hZ hW)) := by
+  unfold binaryMutualInfo binaryContraction at *
+  rw [binaryLaw_swap] at hne ⊢
+  exact BinaryLaw.bidirectional_strict _ hne
+
+end RandomVariableDirections
 
 end BinaryPairBound

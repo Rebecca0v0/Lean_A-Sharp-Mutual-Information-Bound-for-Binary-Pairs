@@ -9,291 +9,218 @@ All intermediate results used to prove Theorem 2.1 are proved within this
 project. Applying `mainTheorem` requires no additional assumptions about
 those results.
 
-## Definitions
+## Reading the reorganized source
 
-- `k(c,d) = 1-c-d`, `q(c,d,x) = c+k(c,d)x`.
-- `H` is mathlib's binary entropy in nats, with `H(0)=H(1)=0`.
-- `D(x,y) = -H(x)-x log(y)-(1-x)log(1-y)`.
-  This is Bernoulli KL on `x ∈ [0,1]`, `y ∈ (0,1)`.
-  At `y=0` or `y=1`, do not interpret this real-valued formula as KL:
-  for example, it gives `D(1,0)=0`, whereas the usual KL is infinite.
-  The positivity and data-processing lemmas in
-  [Divergence.lean](BinaryPairBound/Divergence.lean) require `y ∈ (0,1)`
-  for each reference parameter. `S` handles deterministic input or output separately.
-- `J(s,c,d) = H(q(s))-(1-s)H(c)-sH(d)`.
-- `S` is the supremum of `D(q(x),q(s))/D(x,s)` for `x ≠ s`, with the
-  paper's zero convention for deterministic input or output. Its finiteness,
-  bounds in `[0,1]`, supporting-tangent characterization, and required
-  continuity are proved.
-- `phi(t) = log(2)-H((1-sqrt(t))/2)`.
-- `Independent` means `s=0 ∨ s=1 ∨ c+d=1`.
-- `DSBS` means `s=1/2 ∧ c=d`, including crossover probabilities above `1/2`.
+The source has **17 mathematical chapters**. Read a chapter for its complete
+mathematical goal: its definitions, the lemmas needed for that goal, and the
+final theorem are kept together. The order below is also a valid order for
+reading the project dependencies.
 
-## Dependency graph
+Start with the derivation of equation (4.1) below. Then follow the main-theorem
+chapters, the probability interfaces, the IID consequences, and directionality.
+The theorem names have been retained, so a declaration can still be found by
+searching for its existing name.
 
-Each box names one or more files in [`BinaryPairBound/`](BinaryPairBound/).
-An arrow `A → B` means that B uses definitions or proved results from A. These are selected
-proof dependencies; intermediate lemmas and other dependencies are omitted.
+## 1. Binary entropy, KL, and the complete proof of equation (4.1)
 
-### Assembling Theorem 2.1
+Read [BinaryInformation.lean](BinaryPairBound/BinaryInformation.lean).
+This chapter contains the parameter definitions, entropy and KL identities,
+the derivative calculations, equation (4.1), and the equivalent KL cap condition.
 
-```mermaid
-flowchart TD
-  OPT["Optimization.lean<br/>Maximizer existence"] --> ASM["Main.lean<br/>mainTheorem_of_maximizersMerge"]
-  MS["MergingSharp.lean<br/>Bound and equality at merging"] --> ASM
-  RED["Endpoints.lean<br/>Symmetry.lean<br/>Endpoints and relabeling"] --> ASM
-  INT["InteriorMaximizer.lean"] --> MM["MainProof.lean<br/>maximizersMerge"]
-  BD["BoundaryImprovement.lean"] --> MM
-  ASM --> THM["MainProof.lean<br/>mainTheorem"]
-  MM --> THM
+**Goal.** For the curve and its actual tangent
+
+```math
+F_\lambda(x)=H(q(x))-\lambda H(x),
+\qquad T_{\lambda,s}(x)=F_\lambda(s)+F_\lambda'(s)(x-s),
 ```
 
-The last step in [MainProof.lean](BinaryPairBound/MainProof.lean) is exactly
-`mainTheorem := mainTheorem_of_maximizersMerge maximizersMerge`.
-The two inputs are the assembly theorem from
-[Main.lean](BinaryPairBound/Main.lean) and the proved maximizer reduction.
-In the diagram, the boundary arrow passes through
-`normalized_cap_maximizer_interior`; the interior arrow uses
-`interior_cap_maximizer_distinguishedInput`.
+prove
 
-### Proving the interior and boundary steps
-
-```mermaid
-flowchart TD
-  JC["JointRatioContinuity.lean"] --> CS["CapSaturation.lean"]
-  CG["ContactGeometry.lean"] --> CF["ContactFeasibility.lean"]
-  CF --> FAM["ContactFamily.lean"]
-  CE["ContactEndpoints.lean"] --> INT["InteriorMaximizer.lean"]
-  FAM --> INT
-  SIG["ContactSigns.lean"] --> INT
-  CS --> INT
-  BC["BoundaryCoefficient.lean"] --> CONT["BoundaryContinuation.lean"]
-  JC --> CONT
-  CONT --> BI["BoundaryImprovement.lean"]
-  FAM --> BI
-  SIG --> BI
+```math
+F_\lambda(x)-T_{\lambda,s}(x)
+=\lambda D(x,s)-D(q(x),q(s)).
 ```
 
-[ContactFamily.lean](BinaryPairBound/ContactFamily.lean) supplies
-`exists_feasible_contact_family`;
-[ContactSigns.lean](BinaryPairBound/ContactSigns.lean) supplies the strict
-input- and output-direction derivative signs. Together with
-`interior_cap_maximizer_saturates`, they prove the interior result.
-The boundary branch proves `boundary_improvement_zero_right`.
-The boundary proof also reuses `exists_right_interior_contact` from
-[InteriorMaximizer.lean](BinaryPairBound/InteriorMaximizer.lean), not its final
-maximizer conclusion.
+Here `q(c,d,x) = c + (1-c-d)x`. For the probability interpretation,
+`x,s,c,d` belong to `[0,1]`, and the reference probabilities satisfy
+`0 < s < 1` and `0 < q(s) < 1`.
 
-Maximizer existence follows a separate path:
-[Contraction.lean](BinaryPairBound/Contraction.lean) →
-[Compactness.lean](BinaryPairBound/Compactness.lean) →
-[Optimization.lean](BinaryPairBound/Optimization.lean).
-It does not depend on `JointRatioContinuity.lean`.
+**First identify the functions.** `H` is an abbreviation for mathlib's
+`Real.binEntropy`. `H_eq` proves its logarithmic expression. `D` is defined by
 
-### Using Theorem 2.1 in the later results
-
-```mermaid
-flowchart TD
-  MAIN["MainProof.lean"] --> RV["RandomVariables.lean"]
-  MAIN --> DP["FiniteProcessing.lean"]
-  TP["FiniteTensorization.lean<br/>Contracts.power"] --> S10["Section10.lean<br/>iid_binary_bound"]
-  DP --> S10
-  S10 --> S10RV["Section10RandomVariables.lean"]
-  RV --> S10RV
-  MAIN --> DIR["ReverseChannel.lean"]
-  DIR --> DIRRV["RandomVariableDirections.lean"]
-  RV --> DIRRV
+```math
+D(x,s)=-H(x)-x\log s-(1-x)\log(1-s).
 ```
 
-The arrows from `MainProof.lean` to `RandomVariables.lean` and
-`FiniteProcessing.lean` pass through
-[BinaryLaw.lean](BinaryPairBound/BinaryLaw.lean), which applies the scalar
-theorem to a binary joint law.
-[Section10.lean](BinaryPairBound/Section10.lean) combines
-`Contracts.power` with `processedLaw_bound_of_cap`.
-[ReverseChannel.lean](BinaryPairBound/ReverseChannel.lean) proves the
-bidirectional bound and its strictness; the random-variable versions are in
-[RandomVariableDirections.lean](BinaryPairBound/RandomVariableDirections.lean).
+`D_eq_log_ratio` proves agreement with the usual Bernoulli KL formula when
+`x ∈ [0,1]` and `s ∈ (0,1)`. The endpoints `x=0,1` are included. At a
+reference value `s=0` or `s=1`, this real-valued formula must not be read as
+extended-real KL. The definition of `S` handles deterministic inputs and
+outputs separately.
 
-The identification with the usual KL-ratio definition is a separate result:
-[FiniteKL.lean](BinaryPairBound/FiniteKL.lean) →
-[FiniteKLStandard.lean](BinaryPairBound/FiniteKLStandard.lean),
-ending with `coefficient_eq_standardKLCoefficient`.
-It is not a premise of the tensorization or data-processing proofs.
+**Next prove the slopes.** `hasDerivAt_H_log` invokes mathlib's proved
+`Real.hasDerivAt_binEntropy` to establish
+
+```math
+H'(s)=\log(1-s)-\log s.
+```
+
+`hasDerivAt_q` gives `q'(s)=k`, where `k=1-c-d`. The chain rule in
+`hasDerivAt_entropyCurve`, followed by `deriv_entropyCurve`, gives
+
+```math
+F_\lambda'(s)
+=k\bigl[\log(1-q(s))-\log q(s)\bigr]
+-\lambda\bigl[\log(1-s)-\log s\bigr].
+```
+
+The definition `tangent` uses `deriv (entropyCurve lam c d) s`.
+Thus this slope is proved to be the actual derivative; it is not supplied as
+an extra tangent hypothesis.
+
+**Then calculate the gap.** `entropy_tangent_gap` proves the algebraic identity
+
+```math
+H(x)-H(s)-\bigl[\log(1-s)-\log s\bigr](x-s)=-D(x,s).
+```
+
+This identity alone does not establish differentiability. The derivative
+results above justify interpreting its logarithmic coefficient as a slope.
+
+`equation_4_1` applies the identity twice: once at the output probabilities
+$q(x),q(s)$, giving $-D(q(x),q(s))$, and once at $x,s$, multiplied by
+$-\lambda$, giving $\lambda D(x,s)$. The relation
+$q(x)-q(s)=k(x-s)$ makes their sum exactly $F_\lambda(x)-T_{\lambda,s}(x)$.
+
+`equation_4_1_log_ratio` writes the result in the paper's logarithm-of-ratio
+notation, including test inputs `0` and `1`.
+
+**Finally connect the formula to the constraint.** The same chapter proves
+KL positivity and data processing, the bounds `0 ≤ S ≤ 1`, and the cap
+characterization `S_le_iff_supporting_tangent`. For valid, nondegenerate
+parameters and a nonnegative cap `lambda`, the condition `S ≤ lambda` is
+equivalent to
+
+```math
+D(q(x),q(s))\leq\lambda D(x,s)\quad\text{for every }x\in[0,1],
+```
+
+and hence to $F_\lambda(x)\geq T_{\lambda,s}(x)$ throughout that interval.
+These are the constraint and geometry used in the later chapters.
 
 ## Theorem 2.1 proof map
 
-The modules below develop the scalar proof of `mainTheorem`. The definitions
-and conventions are listed above; the random-variable interface and Section 10
-results are described below.
+The following chapters complete the scalar theorem. Each row states the
+mathematical question answered in that file and names its main conclusions.
 
-| Paper step | Main modules |
-|---|---|
-| Definitions, KL identities, equation (4.1) | `Definitions`, `Entropy`, `TangentGap`, `Divergence` |
-| Exact coefficient, endpoints, relabeling | `Contraction`, `Information`, `Endpoints`, `Symmetry` |
-| Curvature and diagonal ratio | `Curvature`, `ChannelCap`, `LocalCoefficient`, `RatioContinuity` |
-| Joint continuity and compact maximizers | `JointRatioContinuity`, `Compactness`, `Optimization` |
-| Distinct contacts and global support | `ContactGeometry`, `ContactEndpoints`, `ContactFeasibility` |
-| Smooth feasible contact family | `DivergenceCalculus`, `Perturbation`, `ContactJacobian`, `ContactFamily` |
-| Both strict information-derivative signs | `InformationPerturbation`, `Hyperbolic`, `ContactMonotonicity`, `ContactSymmetry`, `ReflectedSign`, `ContactPlacement`, `OutputDirection`, `ContactSigns` |
-| Boundary formula, continuation, strict improvement | `BoundaryCoefficient`, `BoundaryContinuation`, `BoundaryImprovement` |
-| Cap saturation and maximizers merge | `CapSaturation`, `MaximizerVariations`, `InteriorMaximizer`, `MainProof` |
-| Scalar entropy inequalities and merging bound | `ScalarEntropy`, `Merging`, `MergingSharp` |
-| DSBS attainment and final assembly | `SymmetricSource`, `Reduction`, `Specification`, `Main`, `MainProof` |
+| Order | Mathematical goal | Chapter and main conclusions |
+|---|---|---|
+| 2 | Establish basic bounds for mutual information and `phi`; settle the coefficient endpoints and relabeling. | [InformationBounds.lean](BinaryPairBound/InformationBounds.lean): `J_eq_zero_iff_independent`, `phi_increment_le`, `S_eq_zero_iff_independent`, `sharp_equality_iff_of_S_one` |
+| 3 | Determine the curve's convex and concave regions, the channel bound `eta`, and the distinguished input where the local bound is attained. | [ChannelGeometry.lean](BinaryPairBound/ChannelGeometry.lean): `S_le_eta`, `S_distinguishedInput_eq_eta`, `rhoSquared_two_roots` |
+| 4 | Prove the sharp bound at the distinguished input, classify equality there, and construct DSBS examples attaining every cap. | [SharpMerging.lean](BinaryPairBound/SharpMerging.lean): `merging_sharp_bound`, `merging_sharp_eq_iff_dsbs`, `exists_sharp_cap_witness` |
+| 5 | Show that mutual information attains a maximum under a prescribed coefficient cap. | [MaximizerExistence.lean](BinaryPairBound/MaximizerExistence.lean): `exists_cap_maximizer`, `exists_nontrivial_normalized_maximizer` |
+| 6 | Fill in the diagonal limit of the KL ratio and prove continuity when the input and channel vary. | [CoefficientContinuity.lean](BinaryPairBound/CoefficientContinuity.lean): `tendsto_klRatio_nhdsNE`, `exists_extendedRatio_eq_S`, `continuousAt_S_comp` |
+| 7 | Locate distinct interior contact points and show that the outer common tangent supplies the global KL constraint. | [SupportingContacts.lean](BinaryPairBound/SupportingContacts.lean): `exists_ordered_interior_contacts`, `klCap_of_outer_bitangent_local`, `outer_bitangent_unique` |
+| 8 | Construct a smooth family of channels and contact points that preserves the constraint. | [ContactFamilies.lean](BinaryPairBound/ContactFamilies.lean): `contactSystem_partial_isInvertible`, `exists_feasible_contact_family` |
+| 9 | Prove that an appropriate change along this family has a strictly signed information derivative. The scalar estimates and their application are together here. | [ContactSigns.lean](BinaryPairBound/ContactSigns.lean): `informationCoords_supporting_input_curve_deriv_pos`, `informationCoords_supporting_output_curve_deriv_neg` |
+| 10 | Prove that an interior maximizer uses the full cap and must have its input at the distinguished merging point. | [InteriorMaximizers.lean](BinaryPairBound/InteriorMaximizers.lean): `interior_cap_maximizer_saturates`, `interior_cap_maximizer_distinguishedInput` |
+| 11 | Calculate the boundary coefficient, continue into the interior at the same coefficient, and strictly improve mutual information. | [BoundaryImprovement.lean](BinaryPairBound/BoundaryImprovement.lean): `S_zero_right`, `existsUnique_boundary_continuation`, `boundary_improvement_zero_right` |
+| 12 | Combine these results to prove Theorem 2.1, both directions of its equality classification, and the fixed-cap optimum. | [MainTheorem.lean](BinaryPairBound/MainTheorem.lean): `maximizersMerge`, `mainTheorem`, `sharp_bound`, `sharp_equality_iff`, `fixed_cap_optimum` |
 
-## Verified steps and representative declarations
+The final argument is as follows. For a cap between zero and one, choose a
+maximizer. The boundary improvement shows that its channel lies in the
+interior. At an interior maximum, a feasible smooth variation has derivative
+zero. The strict derivative signs exclude distinct contacts, so the input
+must be the distinguished merging input. The bound from `SharpMerging`
+therefore applies to the maximizer and hence to every point under the cap.
 
-| Step | Checked declarations |
-|---|---|
-| KL positivity and data processing | `D_pos`, `D_eq_zero_iff`, `D_dataProcessing` |
-| Tangent gap and exact cap equivalence | `equation_4_1_log_ratio`, `S_le_iff_supporting_tangent` |
-| Curvature | `deriv2_entropyCurve`, `rhoSquared_eq_eta_iff`, `rhoSquared_two_roots` |
-| Actual diagonal KL limit | `tendsto_klRatio_nhdsNE` |
-| Attainment and unique merging input | `exists_extendedRatio_eq_S`, `S_eq_eta_iff`, `rhoSquared_lt_S` |
-| Joint continuity | `exists_extendedRatio_eq_rhoSquared`, `continuousAt_S_comp` |
-| Compact maximizer existence | `exists_nontrivial_normalized_maximizer` |
-| Interior contact attainment and ordering | `exists_ordered_interior_contacts` |
-| Lower support and uniqueness | `klCap_of_outer_bitangent_local`, `outer_bitangent_unique` |
-| Actual contact-system invertibility | `contactSystem_partial_isInvertible` |
-| Smoothness and exact cap preservation | `exists_feasible_contact_family` |
-| Strict input-direction sign | `informationCoords_supporting_input_curve_deriv_pos` |
-| Reflected-contact scalar sign | `contactQ_at_reflection_pos` |
-| Placement of actual contacts | `contactReflection_le_of_supporting_contact` |
-| Strict output-direction sign | `informationCoords_supporting_output_curve_deriv_neg` |
-| Exact boundary coefficient | `S_zero_right`, `S_zero_left` |
-| Unique interior continuation and limit | `existsUnique_boundary_continuation`, `tendsto_boundaryContinuationSlope` |
-| Strict boundary improvement | `boundary_improvement_zero_right` (other side by relabeling) |
-| Cap saturation | `interior_cap_maximizer_saturates` |
-| Interior maximizers merge | `interior_cap_maximizer_distinguishedInput` |
-| Boundary exclusion and full reduction | `normalized_cap_maximizer_interior`, `maximizersMerge` |
-| Scalar inequalities | `convexOn_posteriorEntropyCurve`, `phi_increment_le`, `phi_increment_eq_iff` |
-| Merging bound with the actual S | `merging_sharp_bound`, `merging_sharp_eq_iff_dsbs` |
-| Sharp attainment | `S_symmetric`, `exists_sharp_cap_witness` |
-| Original target and optimum | `mainTheorem`, `sharp_bound`, `sharp_equality_iff`, `fixed_cap_optimum` |
+For equality, any source attaining the bound is itself a cap maximizer.
+The same reduction and the merging equality theorem force it to be DSBS.
+At coefficient zero, equality is independence; coefficient one is treated
+by the entropy maximum. Relabeling covers negative channel slopes.
 
-## Alternative arguments in the formal proof
+Maximizer existence uses closed cap sets and compactness. It does not require
+the joint-continuity result proved in the following chapter.
 
-The development follows the paper's reduction while using several equivalent
-arguments that fit the available analysis library:
+## 13–14. Standard probability definitions and the binary parameters
 
-1. Closed cap sublevel sets follow directly from continuity of fixed-test-input
-   KL inequalities. Maximizer existence therefore does not presuppose the
-   joint diagonal-ratio continuity theorem.
-2. The local comparison `rhoSquared ≤ S` follows from strict local concavity
-   contradicting the supporting tangent. The actual quotient limit is also
-   proved separately, using l'Hôpital's theorem twice.
-3. A twofold Rolle argument represents the extended KL ratio by curvature at
-   an intermediate input. This gives joint continuity, including simultaneous
-   movement of the reference input, test input, and channel.
-4. Global support of an outer common tangent follows from strict convexity
-   on the outer branches and concavity between the curvature roots. This
-   supplies a local open-condition criterion for IFT feasibility.
-5. The `c ≤ d` derivative sign follows from Bernoulli KL asymmetry and
-   logarithmic inequalities, without the integral calculation in (C.4).
-6. The decrease of the hyperbolic function A* and positivity in (C.8) are
-   proved by elementary derivatives. Odds-coordinate algebra identifies
-   this expression with the actual reflected-contact Q.
-7. For `c ≥ d`, the reflected entropy secant proves the supporting-contact
-   placement inequality without the integral primitive argument in C.4.
-8. On a one-zero-transition channel, strict curvature growth and compact
-   ratio attainment force the maximizing test input to the endpoint. This
-   yields the exact boundary coefficient without monotone l'Hôpital theory.
-9. The continuous boundary continuation is locally identified with the
-   smooth IFT family by uniqueness of its coefficient level. The strict
-   output derivative and endpoint limit then give a strict improvement.
+Read [FiniteInformation.lean](BinaryPairBound/FiniteInformation.lean) for the
+finite-alphabet definitions and their complete coefficient correspondence.
+The chapter starts with laws and channels, proves the entropy contraction
+facts, and identifies the internal coefficient with
 
-## Final assembly and equality
+```math
+\sup_{Q:\,0\lt D(Q\Vert P)\lt\infty}
+\frac{D(QK\Vert PK)}{D(Q\Vert P)},
+```
 
-For every cap `0 < lambda < 1`, a normalized maximizer exists and is
-nondegenerate. Strict boundary improvement makes its channel interior.
-Interior cap saturation and exclusion of distinct contacts force its input
-to the distinguished configuration. There the exact coefficient is `eta`,
-and the posterior-entropy argument proves the desired `phi` bound.
+with value zero when there is no admissible alternative. On a finite alphabet,
+the constraint is encoded by `Supported Q P` and `Q ≠ P`. The main result is
+`FiniteInfo.coefficient_eq_standardKLCoefficient`. The full-support AGKN
+special case and the reconstruction of a channel from a joint law are in
+this same chapter.
 
-A DSBS attains every cap. Equality for any source makes that source a cap
-maximizer, so the merging equality conditions force it to be DSBS. Coefficient
-zero is precisely independence; coefficient one is handled by the entropy
-maximum characterization. Output relabeling covers negative channel slope.
+Read [BinaryRandomVariables.lean](BinaryPairBound/BinaryRandomVariables.lean)
+for the complete passage from four joint probabilities to the parameters
+`s,c,d`, and then to actual measurable binary random variables on an arbitrary
+probability space. `BinaryLaw.mutualInfo_eq` identifies mutual information
+with `J`; `FiniteInfo.coefficient_binary` identifies the finite coefficient
+with `S`, including deterministic cases. The final results are
+`binary_random_variable_bound` and `binary_random_variable_equality_iff`.
+The latter uses mathlib's `IndepFun` and the DSBS condition on joint atoms.
 
-## Random variables and Section 10
+## 15–16. Tensorization and Section 10
 
-1. `BinaryLaw` starts with four nonnegative atom probabilities summing to one.
-   Its canonical conditional probabilities recover every atom, including null
-   input rows. Shannon mutual information, defined as the sum of marginal entropies minus
-   joint entropy, is proved equal to `J`. Table factorization and opposite-cell
-   symmetry are proved equivalent to the scalar independence and DSBS predicates.
-2. `RandomVariables` constructs this law from the actual joint events of
-   measurable `W Z : Ω → Bool` under any probability measure. Its independence
-   predicate is proved equivalent to mathlib's `ProbabilityTheory.IndepFun`.
-3. `FiniteEntropy` defines homogeneous density entropy
-   `Ent_p(f) = Σ p f log f − (Σ p f) log(Σ p f)` and proves nonnegativity
-   and the data-processing inequality. `FiniteEntropyConvex` proves log-sum
-   and convexity in the density, allowing zero weights and zero atoms.
-4. The general KL definition is `FiniteInfo.standardKLCoefficient` in
-   `FiniteKLStandard`. It allows zero probabilities in `P` and directly
-   restricts alternative laws by `Supported Q P` and `Q ≠ P`. The candidate
-   set is assigned supremum when nonempty and zero otherwise. A deterministic
-   input admits only the supported law `Q = P`, so its coefficient is zero.
-   Strict Jensen equality proves that the supported KL denominator is zero
-   exactly when `Q = P`, and is positive for every allowed alternative.
+Read [Tensorization.lean](BinaryPairBound/Tensorization.lean) for the complete
+product argument: log-sum and entropy convexity, a cap for independent
+products, induction over IID copies, and the reverse inequality obtained by
+testing a single coordinate. `FiniteInfo.coefficient_power_succ` proves exact
+coefficient equality for every positive number of copies.
 
-   `FiniteContraction` constructs the internal entropy-ratio coefficient and
-   proves it lies in `[0,1]` and satisfies its own universal cap. `FiniteKL`
-   identifies density ratios with supported KL ratios. `FiniteKLStandard`
-   proves that the internal coefficient equals the general definition with
-   the unchanged input excluded. `BinaryKernel` identifies this coefficient
-   with scalar `S`, including deterministic binary inputs and outputs.
+Read [Section10.lean](BinaryPairBound/Section10.lean) for the remaining
+argument in one place. `processedLaw_contraction_le` proves that separately
+applying Boolean functions does not increase the coefficient.
+`iid_binary_bound` combines that fact with `Contracts.power` and Theorem 2.1:
 
-   `FiniteKLAGKN` supplies the full-support special case. Its definition
-   `agknCoefficient` takes a proof that every input probability is positive
-   and restricts alternatives only by `Q ≠ P`, as in AGKN Definition 4.
-   Full support makes `Supported Q P` automatic for every `Q`.
-   `agknCoefficient_eq_coefficient` proves agreement with the general
-   coefficient; `agknCoefficient_binary` identifies it with `S` for
-   non-deterministic binary inputs. The empty candidate set is assigned zero,
-   and deterministic outputs are proved to give coefficient zero.
-   `iid_binary_bound_agkn` states the Section 10 inequality directly with
-   this full-support coefficient.
-5. `FiniteJoint` reconstructs every finite joint source from its input marginal
-   and conditional channel, proves exact atom recovery, and proves the
-   coefficient is independent of the default output symbol used on null
-   conditioning events.
-6. `FiniteTensorization` proves the entropy chain identity for product laws.
-   Applying the cap conditionally in one coordinate, convexity to posterior
-   mixtures in the other, and the second cap gives a product cap. Induction
-   gives every finite power, including the empty product. Explicit equivalences
-   to `Fin n → α` and product formulas verify the IID interpretation.
-   Tests depending on one coordinate give the reverse inequality, proving
-   exact coefficient equality for every positive number of copies.
-7. `FiniteProcessing` proves that separately applying Boolean functions to
-   both observations cannot increase the coefficient. Its output atom formula
-   is the actual pushforward of `p(x)K(y|x)`.
-8. `Section10` combines these proved facts with the original main theorem and
-   monotonicity of `phi`. It gives the bound for arbitrary finite joint sources
-   and the DSBS specialization. No tensorization or processing premise remains.
-   `FiniteRandomVariables` and `Section10RandomVariables` identify these finite
-   pushforwards with actual event probabilities on any probability space.
-   `HasIIDJointLaw` is only the joint-atom product formula for IID observations;
-   the information and contraction conclusions are proved from it.
-   `iid_dsbs_random_variable_bound_source` gives the paper's exact display
-   with the actual source mutual information `I(U;V)` on the right.
-9. `ReverseChannel` reconstructs the Bayes-reverse binary channel and proves
-   mutual information symmetry. Applying the main theorem in both directions
-   gives the minimum bound. Equality forces equal directed coefficients, so
-   unequal coefficients give a strict bound. DSBS witnesses attain the bound
-   for every equal prescribed coefficient. `RandomVariableDirections` exposes
-   the minimum and strict bounds for the actual variable orders `(W,Z)` and `(Z,W)`.
+```math
+I(f(X^n);g(Y^n))\leq\phi(s^{\ast}(X;Y)).
+```
 
-## Trust and scope
+The source pair may have arbitrary finite alphabets; the outputs of `f,g`
+are binary. The chapter includes the DSBS consequence, the full-support
+AGKN formulation, and the version for measurable IID observations on an
+arbitrary probability space. `HasIIDJointLaw` states the joint-atom product
+formula; `iid_joint_random_variable_bound` proves the resulting bound.
+All sample sizes `n ≥ 0` and zero-mass atoms are covered.
 
-All 61 source modules are built. `Audit.lean` guards 143 axiom lists for the main
-theorem and the probability, finite-KL, and Section 10 results. Only the standard
-`propext`, `Classical.choice`, and `Quot.sound` appear. No added axioms,
-`sorry`, or native decision shortcuts stand in for mathematical arguments.
+## 17. Directionality
 
-The arbitrary probability-space bridge and Section 10 Boolean-function
-consequences are included. The new optimization problem for unequal prescribed
-forward/reverse coefficients remains a research question in the paper; only
-its asserted bound and nonattainment are formalized. Contact existence is established at every dependent, nonmerging
-interior source's actual cap; a standalone arbitrary-cap version of all of Lemma 4.1
-is not required by, or claimed as part of, this certificate.
+Read [Directionality.lean](BinaryPairBound/Directionality.lean). It constructs
+the reverse binary channel, proves mutual-information symmetry, and applies
+Theorem 2.1 in both directions. With `a = s*(W;Z)` and `b = s*(Z;W)`, it proves
+
+```math
+I(W;Z)\leq\phi(\min\{a,b\}).
+```
+
+Equality holds exactly for independent pairs or DSBS; if `a ≠ b`, the
+inequality is strict. For each `t ∈ [0,1]`, a DSBS attains `phi(t)` with
+`a=b=t`. The scalar and actual-random-variable results are in this same file.
+Start with `bidirectional_equality_iff`, `bidirectional_strict_of_ne`,
+`equal_directed_cap_optimum`, and `binary_random_variable_bidirectional_bound`.
+
+The exact optimum under two unequal prescribed coefficients remains open in
+this project. Strictness of the displayed bound does not determine the sharp
+replacement bound.
+
+## Verification and scope
+
+The root [BinaryPairBound.lean](BinaryPairBound.lean) imports all 17 chapters.
+[Audit.lean](Audit.lean) contains 143 guarded axiom checks. Run
+`./scripts/check.sh` to build the library and execute them. See the
+[README verification instructions](README.md#verification) for the pinned
+versions and setup.
+
+The contact results used by the proof are established at every dependent,
+nonmerging interior source's actual cap. A separate arbitrary-cap version of
+all of the paper's Lemma 4.1 is not claimed.

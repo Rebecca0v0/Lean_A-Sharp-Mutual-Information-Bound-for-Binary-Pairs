@@ -7,7 +7,7 @@ Binary Pairs*, arXiv:2611.02392v1 (2 November 2026).
 
 The project uses Lean **4.35.0** and mathlib **4.35.0**, pinned to mathlib
 commit `56a005855ea17e0b0958f73ec801ae140b0a1679` in `lake-manifest.json`.
-All **61 source modules** are imported by the root module and built. `Audit.lean`
+All **17 source modules** are imported by the root module and built. `Audit.lean`
 contains **143 guarded axiom checks** for the scalar theorem, random-variable interface,
 KL interpretation, tensorization, data processing, and Section 10 consequences.
 There are no `sorry` placeholders or additional axioms. Only `propext`,
@@ -43,7 +43,13 @@ are excluded from version control. No global shell settings are changed.
 
 ## Mathematical content
 
-The mathematical content is organized into four parts, in reading order:
+The source is organized into **17 mathematical chapters**. Each chapter collects
+the definitions, supporting lemmas, and conclusion for one mathematical goal.
+For the complete derivation of equation (4.1), start with
+[BinaryInformation.lean](BinaryPairBound/BinaryInformation.lean). The
+[proof blueprint](blueprint.md) gives a chapter-by-chapter reading order.
+
+The mathematical content is organized into four parts:
 
 1. **Definitions and parametrization:** connect ordinary probability definitions
    to the paper's parameters and the quantities used in Lean.
@@ -109,18 +115,18 @@ binary parametrization above, including deterministic cases.
 On finite alphabets, $0\lt D(Q\Vert P)\lt\infty$ is encoded by
 `Supported Q P` and `Q ≠ P`. `standardKLCoefficient` uses this domain and an
 explicit zero value when it is empty. Its equality with the internal
-coefficient used by the proofs is verified in `FiniteKLStandard`.
+coefficient used by the proofs is verified in [FiniteInformation.lean](BinaryPairBound/FiniteInformation.lean).
 
 **Lean entry points** (names below are in the `BinaryPairBound` namespace):
 
 | Statement | File and declarations |
 |---|---|
-| The constructed joint law has $p_{ab}=\Pr(W=a,Z=b)$ | [RandomVariables.lean](BinaryPairBound/RandomVariables.lean): `binaryLaw` |
-| The parameters $s,c,d$ reproduce the displayed joint-probability matrix | [BinaryLaw.lean](BinaryPairBound/BinaryLaw.lean): `BinaryLaw.mass00`, `BinaryLaw.mass01`, `BinaryLaw.mass10`, `BinaryLaw.mass11` |
-| $I(W;Z)=J(s,c,d)$ | [BinaryLaw.lean](BinaryPairBound/BinaryLaw.lean): `BinaryLaw.mutualInfo_eq` |
-| The KL-ratio definition above gives $s^{\ast}(W;Z)=S(s,c,d)$ | [FiniteKLStandard.lean](BinaryPairBound/FiniteKLStandard.lean): `FiniteInfo.coefficient_eq_standardKLCoefficient`; [BinaryKernel.lean](BinaryPairBound/BinaryKernel.lean): `FiniteInfo.coefficient_binary` |
-| $W,Z$ are independent iff $s=0$, $s=1$, or $c+d=1$ | [BinaryLaw.lean](BinaryPairBound/BinaryLaw.lean): `BinaryLaw.independent_iff`; [RandomVariables.lean](BinaryPairBound/RandomVariables.lean): `binaryLaw.independent_iff` |
-| The joint law is DSBS iff $s=1/2$ and $c=d$ | [BinaryLaw.lean](BinaryPairBound/BinaryLaw.lean): `BinaryLaw.dsbs_iff` |
+| The constructed joint law has $p_{ab}=\Pr(W=a,Z=b)$ | [BinaryRandomVariables.lean](BinaryPairBound/BinaryRandomVariables.lean): `binaryLaw` |
+| The parameters $s,c,d$ reproduce the displayed joint-probability matrix | [BinaryRandomVariables.lean](BinaryPairBound/BinaryRandomVariables.lean): `BinaryLaw.mass00`, `BinaryLaw.mass01`, `BinaryLaw.mass10`, `BinaryLaw.mass11` |
+| $I(W;Z)=J(s,c,d)$ | [BinaryRandomVariables.lean](BinaryPairBound/BinaryRandomVariables.lean): `BinaryLaw.mutualInfo_eq` |
+| The KL-ratio definition above gives $s^{\ast}(W;Z)=S(s,c,d)$ | [FiniteInformation.lean](BinaryPairBound/FiniteInformation.lean): `FiniteInfo.coefficient_eq_standardKLCoefficient`; [BinaryRandomVariables.lean](BinaryPairBound/BinaryRandomVariables.lean): `FiniteInfo.coefficient_binary` |
+| $W,Z$ are independent iff $s=0$, $s=1$, or $c+d=1$ | [BinaryRandomVariables.lean](BinaryPairBound/BinaryRandomVariables.lean): `BinaryLaw.independent_iff`, `binaryLaw.independent_iff` |
+| The joint law is DSBS iff $s=1/2$ and $c=d$ | [BinaryRandomVariables.lean](BinaryPairBound/BinaryRandomVariables.lean): `BinaryLaw.dsbs_iff` |
 
 ## 2. Theorem 2.1: the main bound and equality cases
 
@@ -154,15 +160,15 @@ for measurable binary random variables on any probability space.
 
 | Statement | File and declarations |
 |---|---|
-| Theorem 2.1, bound: $J(s,c,d)\leq\phi(S(s,c,d))$ | [MainProof.lean](BinaryPairBound/MainProof.lean): `sharp_bound` |
-| Theorem 2.1, equality: $J(s,c,d)=\phi(S(s,c,d))$ iff independence or DSBS | [MainProof.lean](BinaryPairBound/MainProof.lean): `sharp_equality_iff` |
-| Equation (1.1): $I(W;Z)\leq\phi(s^{\ast}(W;Z))$ | [RandomVariables.lean](BinaryPairBound/RandomVariables.lean): `binary_random_variable_bound` |
-| Equality in (1.1): $I(W;Z)=\phi(s^{\ast}(W;Z))$ iff $W,Z$ are independent or DSBS | [RandomVariables.lean](BinaryPairBound/RandomVariables.lean): `binary_random_variable_equality_iff` |
-| Equation (3.1): the maximum of $J$ under $S\leq\lambda$ is $\phi(\lambda)$, for $\lambda\in[0,1]$ | [MainProof.lean](BinaryPairBound/MainProof.lean): `fixed_cap_optimum` |
+| Theorem 2.1, bound: $J(s,c,d)\leq\phi(S(s,c,d))$ | [MainTheorem.lean](BinaryPairBound/MainTheorem.lean): `sharp_bound` |
+| Theorem 2.1, equality: $J(s,c,d)=\phi(S(s,c,d))$ iff independence or DSBS | [MainTheorem.lean](BinaryPairBound/MainTheorem.lean): `sharp_equality_iff` |
+| Equation (1.1): $I(W;Z)\leq\phi(s^{\ast}(W;Z))$ | [BinaryRandomVariables.lean](BinaryPairBound/BinaryRandomVariables.lean): `binary_random_variable_bound` |
+| Equality in (1.1): $I(W;Z)=\phi(s^{\ast}(W;Z))$ iff $W,Z$ are independent or DSBS | [BinaryRandomVariables.lean](BinaryPairBound/BinaryRandomVariables.lean): `binary_random_variable_equality_iff` |
+| Equation (3.1): the maximum of $J$ under $S\leq\lambda$ is $\phi(\lambda)$, for $\lambda\in[0,1]$ | [MainTheorem.lean](BinaryPairBound/MainTheorem.lean): `fixed_cap_optimum` |
 
-`MainTheorem` in [Specification.lean](BinaryPairBound/Specification.lean)
+`MainTheorem` in [BinaryInformation.lean](BinaryPairBound/BinaryInformation.lean)
 names the first two statements together; `mainTheorem` in
-[MainProof.lean](BinaryPairBound/MainProof.lean) is their proof.
+[MainTheorem.lean](BinaryPairBound/MainTheorem.lean) is their proof.
 
 The proof map for `mainTheorem` is in the
 [proof blueprint](blueprint.md#theorem-21-proof-map).
@@ -199,8 +205,8 @@ properties used to prove them.
 |---|---|
 | **General finite source:** $I(f(X^n);g(Y^n))\leq\phi(s^{\ast}(X;Y))$. The bound depends only on the joint distribution of $(X,Y)$ and holds for every sample size and every binary-valued $f,g$. | [Section10.lean](BinaryPairBound/Section10.lean): `FiniteInfo.iid_binary_bound`, `FiniteInfo.iid_joint_binary_bound` |
 | **DSBS source:** $I(f(X^n);g(Y^n))\leq I(X;Y)$. The two binary outputs share at most as much mutual information as one original source pair. | [Section10.lean](BinaryPairBound/Section10.lean): `FiniteInfo.iid_dsbs_binary_bound`, `FiniteInfo.iid_dsbs_binary_bound_entropy` |
-| **Tensorization:** $s^{\ast}(X^n;Y^n)=s^{\ast}(X;Y)$ for $n\geq1$. Independent repetition leaves the directed KL contraction coefficient unchanged. | [FiniteTensorization.lean](BinaryPairBound/FiniteTensorization.lean): `FiniteInfo.coefficient_power_succ` |
-| **Data processing:** $s^{\ast}(f(X^n);g(Y^n))\leq s^{\ast}(X^n;Y^n)$. Applying $f$ and $g$ separately cannot increase the directed KL contraction coefficient. | [FiniteProcessing.lean](BinaryPairBound/FiniteProcessing.lean): `FiniteInfo.processedLaw_contraction_le` |
+| **Tensorization:** $s^{\ast}(X^n;Y^n)=s^{\ast}(X;Y)$ for $n\geq1$. Independent repetition leaves the directed KL contraction coefficient unchanged. | [Tensorization.lean](BinaryPairBound/Tensorization.lean): `FiniteInfo.coefficient_power_succ` |
+| **Data processing:** $s^{\ast}(f(X^n);g(Y^n))\leq s^{\ast}(X^n;Y^n)$. Applying $f$ and $g$ separately cannot increase the directed KL contraction coefficient. | [Section10.lean](BinaryPairBound/Section10.lean): `FiniteInfo.processedLaw_contraction_le` |
 
 ## 4. Directionality of the contraction coefficient
 
@@ -240,7 +246,7 @@ $s^{\ast}(W;Z)=s^{\ast}(Z;W)=t$.
 
 | Statement | File and declarations |
 |---|---|
-| $I(W;Z)\leq\phi(\min(a,b))$ | [ReverseChannel.lean](BinaryPairBound/ReverseChannel.lean): `bidirectional_bound`; [RandomVariableDirections.lean](BinaryPairBound/RandomVariableDirections.lean): `binary_random_variable_bidirectional_bound` |
-| $I(W;Z)=\phi(\min(a,b))$ $\iff (W\perp Z)\lor\mathrm{DSBS}(W,Z)$ | [ReverseChannel.lean](BinaryPairBound/ReverseChannel.lean): `bidirectional_equality_iff` |
-| $a\ne b\ \Longrightarrow$ $I(W;Z)\lt\phi(\min(a,b))$ | [ReverseChannel.lean](BinaryPairBound/ReverseChannel.lean): `bidirectional_strict_of_ne`, `prescribed_bidirectional_strict`; [RandomVariableDirections.lean](BinaryPairBound/RandomVariableDirections.lean): `binary_random_variable_bidirectional_strict` |
-| $\forall t\in[0,1],$ $\max_{a=b=t}I(W;Z)=\phi(t)$, attained by a DSBS | [ReverseChannel.lean](BinaryPairBound/ReverseChannel.lean): `equal_directed_cap_optimum` |
+| $I(W;Z)\leq\phi(\min(a,b))$ | [Directionality.lean](BinaryPairBound/Directionality.lean): `bidirectional_bound`, `binary_random_variable_bidirectional_bound` |
+| $I(W;Z)=\phi(\min(a,b))$ $\iff (W\perp Z)\lor\mathrm{DSBS}(W,Z)$ | [Directionality.lean](BinaryPairBound/Directionality.lean): `bidirectional_equality_iff` |
+| $a\ne b\ \Longrightarrow$ $I(W;Z)\lt\phi(\min(a,b))$ | [Directionality.lean](BinaryPairBound/Directionality.lean): `bidirectional_strict_of_ne`, `prescribed_bidirectional_strict`, `binary_random_variable_bidirectional_strict` |
+| $\forall t\in[0,1],$ $\max_{a=b=t}I(W;Z)=\phi(t)$, attained by a DSBS | [Directionality.lean](BinaryPairBound/Directionality.lean): `equal_directed_cap_optimum` |

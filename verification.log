@@ -1,4 +1,22 @@
-Build completed successfully (2755 jobs).
+✔ [2693/2711] Built BinaryPairBound.BinaryInformation (4.1s)
+✔ [2694/2711] Built BinaryPairBound.FiniteInformation (3.1s)
+✔ [2695/2711] Built BinaryPairBound.InformationBounds (4.1s)
+✔ [2696/2711] Built BinaryPairBound.ChannelGeometry (4.5s)
+✔ [2697/2711] Built BinaryPairBound.Tensorization (2.4s)
+✔ [2698/2711] Built BinaryPairBound.SharpMerging (2.8s)
+✔ [2699/2711] Built BinaryPairBound.MaximizerExistence (2.2s)
+✔ [2700/2711] Built BinaryPairBound.CoefficientContinuity (2.5s)
+✔ [2701/2711] Built BinaryPairBound.SupportingContacts (2.5s)
+✔ [2702/2711] Built BinaryPairBound.ContactFamilies (3.9s)
+✔ [2703/2711] Built BinaryPairBound.ContactSigns (5.1s)
+✔ [2704/2711] Built BinaryPairBound.InteriorMaximizers (2.3s)
+✔ [2705/2711] Built BinaryPairBound.BoundaryImprovement (2.9s)
+✔ [2706/2711] Built BinaryPairBound.MainTheorem (2.3s)
+✔ [2707/2711] Built BinaryPairBound.BinaryRandomVariables (4.8s)
+✔ [2708/2711] Built BinaryPairBound.Section10 (2.7s)
+✔ [2709/2711] Built BinaryPairBound.Directionality (2.7s)
+✔ [2710/2711] Built BinaryPairBound (2.0s)
+Build completed successfully (2711 jobs).
 BinaryPairBound.mainTheorem : BinaryPairBound.MainTheorem
 @BinaryPairBound.sharp_bound : ∀ {s c d : ℝ},
   BinaryPairBound.Valid s c d → BinaryPairBound.J s c d ≤ BinaryPairBound.phi (BinaryPairBound.S s c d)
@@ -39,7 +57,7 @@ BinaryPairBound.mainTheorem : BinaryPairBound.MainTheorem
   (X Y : Ω → Fin n → Bool) (hX : Measurable X) (hY : Measurable Y),
   BinaryPairBound.HasIIDJointLaw μ
       (BinaryPairBound.FiniteInfo.joint
-        (BinaryPairBound.FiniteInfo.bernoulli (1 / 2) BinaryPairBound.iid_dsbs_random_variable_bound._proof_1)
+        (BinaryPairBound.FiniteInfo.bernoulli (1 / 2) BinaryPairBound.FiniteInfo.iid_dsbs_binary_bound._proof_1)
         (BinaryPairBound.FiniteInfo.binaryChannel c c hc hc))
       X Y →
     ∀ (f g : (Fin n → Bool) → Bool),

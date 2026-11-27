@@ -1,16 +1,270 @@
 module
 
-public import BinaryPairBound.Entropy
+public import BinaryPairBound.BinaryInformation
 public import Mathlib.Analysis.Calculus.Deriv.MeanValue
 public import Mathlib.Analysis.Convex.Deriv
-public import Mathlib.Tactic.Linarith
+public import Mathlib.Analysis.Convex.Function
 public import Mathlib.Tactic.FieldSimp
+public import Mathlib.Tactic.Linarith
 
-noncomputable section
+/-!
+# Mutual information, relabeling, and endpoint equality
 
-@[expose] public section
+证明互信息和phi的基本性质，处理0/1端点与二元符号重标记。
+
+Read the sections below in order: they develop one mathematical goal in this file.
+All theorem names and mathematical statements from the original development are retained.
+-/
 
 namespace BinaryPairBound
+
+/-! ## Mutual information and its endpoint values
+
+证明二元互信息介于 0 和 log 2 之间，并说明什么时候取到这两个端点。
+-/
+
+public section Information
+
+@[simp] theorem J_zero_input (c d : ℝ) : J 0 c d = 0 := by
+  simp [J, q, k]
+
+@[simp] theorem J_one_input (c d : ℝ) : J 1 c d = 0 := by
+  have hq : q c d 1 = 1 - d := by unfold q k; ring
+  simp [J, hq, H]
+
+theorem J_nonneg {s c d : ℝ} (hv : Valid s c d) : 0 ≤ J s c d := by
+  rcases hv with ⟨hs, hc, hd⟩
+  have h1d : 1 - d ∈ Set.Icc (0 : ℝ) 1 := ⟨sub_nonneg.mpr hd.2, by linarith [hd.1]⟩
+  have h := Real.strictConcave_binEntropy.concaveOn.2 hc h1d
+    (sub_nonneg.mpr hs.2) hs.1 (show (1 - s) + s = 1 by ring)
+  have hq : (1 - s) * c + s * (1 - d) = q c d s := by unfold q k; ring
+  simp only [smul_eq_mul, Real.binEntropy_one_sub, hq] at h
+  unfold J
+  linarith
+
+theorem J_le_log_two {s c d : ℝ} (hv : Valid s c d) : J s c d ≤ Real.log 2 := by
+  have hc := mul_nonneg (sub_nonneg.mpr hv.1.2) (Real.binEntropy_nonneg hv.2.1.1 hv.2.1.2)
+  have hd := mul_nonneg hv.1.1 (Real.binEntropy_nonneg hv.2.2.1 hv.2.2.2)
+  have hq := Real.binEntropy_le_log_two (p := q c d s)
+  unfold J
+  linarith
+
+/-- A deterministic input or constant-output channel has zero information. -/
+theorem J_eq_zero_of_independent {s c d : ℝ} (hi : Independent s c d) : J s c d = 0 := by
+  rcases hi with hs | hs | hcd
+  · subst s; exact J_zero_input c d
+  · subst s; exact J_one_input c d
+  · have hk : k c d = 0 := by unfold k; linarith
+    have hd : d = 1 - c := by linarith
+    unfold J
+    simp only [q, hk, zero_mul, add_zero]
+    simp only [hd, H, Real.binEntropy_one_sub]
+    ring
+
+theorem J_pos_of_not_independent {s c d : ℝ} (hv : Valid s c d)
+    (hi : ¬Independent s c d) : 0 < J s c d := by
+  have hs0 : s ≠ 0 := fun h => hi (Or.inl h)
+  have hs1 : s ≠ 1 := fun h => hi (Or.inr (Or.inl h))
+  have hspos : 0 < s := lt_of_le_of_ne hv.1.1 (Ne.symm hs0)
+  have hslt : s < 1 := lt_of_le_of_ne hv.1.2 hs1
+  have h1d : 1 - d ∈ Set.Icc (0 : ℝ) 1 :=
+    ⟨sub_nonneg.mpr hv.2.2.2, by linarith [hv.2.2.1]⟩
+  have hcd : c ≠ 1 - d := by
+    intro h
+    exact hi (Or.inr (Or.inr (by linarith)))
+  have h := Real.strictConcave_binEntropy.2 hv.2.1 h1d hcd
+    (sub_pos.mpr hslt) hspos (show (1 - s) + s = 1 by ring)
+  have hq : (1 - s) * c + s * (1 - d) = q c d s := by unfold q k; ring
+  simp only [smul_eq_mul, Real.binEntropy_one_sub, hq] at h
+  unfold J
+  linarith
+
+theorem J_eq_zero_iff_independent {s c d : ℝ} (hv : Valid s c d) :
+    J s c d = 0 ↔ Independent s c d := by
+  constructor
+  · intro h
+    by_contra hi
+    exact (ne_of_gt (J_pos_of_not_independent hv hi)) h
+  · exact J_eq_zero_of_independent
+
+/-- A dependent binary pair cannot have a deterministic marginal. -/
+theorem nondegenerate_of_not_independent {s c d : ℝ} (hv : Valid s c d)
+    (hi : ¬Independent s c d) : Nondegenerate s c d := by
+  have hs0 : s ≠ 0 := fun h => hi (Or.inl h)
+  have hs1 : s ≠ 1 := fun h => hi (Or.inr (Or.inl h))
+  have hspos : 0 < s := lt_of_le_of_ne hv.1.1 (Ne.symm hs0)
+  have hslt : s < 1 := lt_of_le_of_ne hv.1.2 hs1
+  have hq := q_mem_Icc c d s hv.2.1 hv.2.2 hv.1
+  have hA := mul_nonneg (sub_nonneg.mpr hv.1.2) hv.2.1.1
+  have hB := mul_nonneg hv.1.1 (sub_nonneg.mpr hv.2.2.2)
+  have hC := mul_nonneg (sub_nonneg.mpr hv.1.2) (sub_nonneg.mpr hv.2.1.2)
+  have hE := mul_nonneg hv.1.1 hv.2.2.1
+  have hq0 : q c d s ≠ 0 := by
+    intro hz
+    have hsum : (1 - s) * c + s * (1 - d) = 0 := by
+      unfold q k at hz
+      nlinarith
+    have hc : c = 0 := by nlinarith
+    have hd : d = 1 := by nlinarith
+    exact hi (Or.inr (Or.inr (by linarith)))
+  have hq1 : q c d s ≠ 1 := by
+    intro hz
+    have hsum : (1 - s) * (1 - c) + s * d = 0 := by
+      unfold q k at hz
+      nlinarith
+    have hc : c = 1 := by nlinarith
+    have hd : d = 0 := by nlinarith
+    exact hi (Or.inr (Or.inr (by linarith)))
+  exact ⟨⟨hspos, hslt⟩,
+    ⟨lt_of_le_of_ne hq.1 (Ne.symm hq0), lt_of_le_of_ne hq.2 hq1⟩⟩
+
+/-- Maximum binary information is attained exactly by a uniform, noiseless or
+complementing channel. This is the equality condition used at cap 1 in Section 8. -/
+theorem J_eq_log_two_iff {s c d : ℝ} (hv : Valid s c d) :
+    J s c d = Real.log 2 ↔ s = 1 / 2 ∧ c = d ∧ (c = 0 ∨ c = 1) := by
+  constructor
+  · intro hJ
+    have hlog : 0 < Real.log 2 := Real.log_pos (by norm_num)
+    have hs0 : s ≠ 0 := by
+      intro h; subst s; rw [J_zero_input] at hJ; linarith
+    have hs1 : s ≠ 1 := by
+      intro h; subst s; rw [J_one_input] at hJ; linarith
+    have hspos : 0 < s := lt_of_le_of_ne hv.1.1 (Ne.symm hs0)
+    have hslt : s < 1 := lt_of_le_of_ne hv.1.2 hs1
+    have hc0 := Real.binEntropy_nonneg hv.2.1.1 hv.2.1.2
+    have hd0 := Real.binEntropy_nonneg hv.2.2.1 hv.2.2.2
+    have hc := mul_nonneg (sub_nonneg.mpr hv.1.2) hc0
+    have hd := mul_nonneg hv.1.1 hd0
+    have hq := Real.binEntropy_le_log_two (p := q c d s)
+    have heq : H (q c d s) = Real.log 2 := by unfold J at hJ; linarith
+    have hcz : H c = 0 := by unfold J at hJ; nlinarith
+    have hdz : H d = 0 := by unfold J at hJ; nlinarith
+    have hqhalf : q c d s = (2 : ℝ)⁻¹ := Real.binEntropy_eq_log_two.mp heq
+    rcases Real.binEntropy_eq_zero.mp hcz with hcz | hcz <;>
+      rcases Real.binEntropy_eq_zero.mp hdz with hdz | hdz
+    all_goals simp only [hcz, hdz, q, k] at hqhalf ⊢
+    all_goals norm_num at hqhalf
+    all_goals norm_num
+    all_goals linarith
+  · rintro ⟨rfl, hcd, hc | hc⟩
+    all_goals subst c; subst d; norm_num [J, q, k, H]
+    all_goals exact Real.binEntropy_eq_log_two.mpr (by norm_num)
+
+end Information
+
+/-! ## Changing binary labels
+
+证明交换二元符号的 0、1 标签不会改变需要比较的互信息与系数。
+-/
+
+public section Symmetry
+
+theorem D_one_sub (x y : ℝ) : D (1 - x) (1 - y) = D x y := by
+  simp only [D, H, Real.binEntropy_one_sub, sub_sub_cancel]
+  ring
+
+lemma q_output_flip (c d x : ℝ) : q (1 - c) (1 - d) x = 1 - q c d x := by
+  unfold q k
+  ring
+
+lemma k_output_flip (c d : ℝ) : k (1 - c) (1 - d) = -k c d := by
+  unfold k
+  ring
+
+lemma q_swap_one_sub (c d x : ℝ) : q d c (1 - x) = 1 - q c d x := by
+  unfold q k
+  ring
+
+lemma q_swap (c d x : ℝ) : q d c x = 1 - q c d (1 - x) := by
+  unfold q k
+  ring
+
+lemma k_swap (c d : ℝ) : k d c = k c d := by
+  unfold k
+  ring
+
+theorem J_output_flip (s c d : ℝ) : J s (1 - c) (1 - d) = J s c d := by
+  simp only [J, q_output_flip, H, Real.binEntropy_one_sub]
+
+theorem J_simultaneous_flip (s c d : ℝ) : J (1 - s) d c = J s c d := by
+  simp only [J, q_swap_one_sub, H, Real.binEntropy_one_sub, sub_sub_cancel]
+  ring
+
+lemma nondegenerate_output_flip (s c d : ℝ) :
+    Nondegenerate s (1 - c) (1 - d) ↔ Nondegenerate s c d := by
+  unfold Nondegenerate
+  rw [q_output_flip]
+  constructor <;> rintro ⟨hs, hq⟩ <;> refine ⟨hs, ?_⟩ <;>
+    constructor <;> linarith [hq.1, hq.2]
+
+lemma nondegenerate_simultaneous_flip (s c d : ℝ) :
+    Nondegenerate (1 - s) d c ↔ Nondegenerate s c d := by
+  unfold Nondegenerate
+  rw [q_swap_one_sub]
+  constructor <;> rintro ⟨hs, hq⟩ <;> constructor <;> constructor <;>
+    linarith [hs.1, hs.2, hq.1, hq.2]
+
+lemma klRatios_output_flip (s c d : ℝ) :
+    klRatios s (1 - c) (1 - d) = klRatios s c d := by
+  ext r
+  simp only [klRatios, Set.mem_ofPred_eq, q_output_flip, D_one_sub]
+
+theorem S_output_flip (s c d : ℝ) : S s (1 - c) (1 - d) = S s c d := by
+  by_cases hn : Nondegenerate s c d
+  · have hn' := (nondegenerate_output_flip s c d).mpr hn
+    simp only [S, ite_eq_left hn, ite_eq_left hn', klRatios_output_flip]
+  · have hn' : ¬Nondegenerate s (1 - c) (1 - d) :=
+      fun h => hn ((nondegenerate_output_flip s c d).mp h)
+    simp only [S, ite_eq_right hn, ite_eq_right hn']
+
+private lemma ratio_simultaneous_flip (s c d x : ℝ) :
+    D (q d c x) (q d c (1 - s)) / D x (1 - s) =
+      D (q c d (1 - x)) (q c d s) / D (1 - x) s := by
+  rw [q_swap_one_sub, q_swap, D_one_sub]
+  have hD := D_one_sub (1 - x) s
+  simp only [sub_sub_cancel] at hD
+  rw [hD]
+
+private lemma klRatios_simultaneous_flip_subset (s c d : ℝ) :
+    klRatios (1 - s) d c ⊆ klRatios s c d := by
+  rintro r ⟨x, hx, hxs, rfl⟩
+  refine ⟨1 - x, ⟨by linarith [hx.2], by linarith [hx.1]⟩, ?_, ?_⟩
+  · intro h
+    apply hxs
+    linarith
+  · exact ratio_simultaneous_flip s c d x
+
+lemma klRatios_simultaneous_flip (s c d : ℝ) :
+    klRatios (1 - s) d c = klRatios s c d := by
+  apply Set.Subset.antisymm
+  · exact klRatios_simultaneous_flip_subset s c d
+  · simpa only [sub_sub_cancel] using klRatios_simultaneous_flip_subset (1 - s) d c
+
+theorem S_simultaneous_flip (s c d : ℝ) : S (1 - s) d c = S s c d := by
+  by_cases hn : Nondegenerate s c d
+  · have hn' := (nondegenerate_simultaneous_flip s c d).mpr hn
+    simp only [S, ite_eq_left hn, ite_eq_left hn', klRatios_simultaneous_flip]
+  · have hn' : ¬Nondegenerate (1 - s) d c :=
+      fun h => hn ((nondegenerate_simultaneous_flip s c d).mp h)
+    simp only [S, ite_eq_right hn, ite_eq_right hn']
+
+lemma valid_output_flip {s c d : ℝ} (hv : Valid s c d) :
+    Valid s (1 - c) (1 - d) := by
+  refine ⟨hv.1, ⟨?_, ?_⟩, ⟨?_, ?_⟩⟩ <;>
+    linarith [hv.2.1.1, hv.2.1.2, hv.2.2.1, hv.2.2.2]
+
+lemma valid_simultaneous_flip {s c d : ℝ} (hv : Valid s c d) :
+    Valid (1 - s) d c := by
+  exact ⟨⟨by linarith [hv.1.2], by linarith [hv.1.1]⟩, hv.2.2, hv.2.1⟩
+
+end Symmetry
+
+/-! ## The sharp bound function and scalar entropy inequalities
+
+证明上界函数 phi 的单调性及后面所需的熵不等式。
+-/
+
+@[expose] public noncomputable section ScalarEntropy
 
 @[simp] theorem phi_zero : phi 0 = 0 := by
   simp [phi, H, Real.binEntropy_two_inv]
@@ -314,5 +568,78 @@ theorem posteriorEntropyCurve_jensen {a b w : ℝ}
     posteriorEntropyCurve ((1 - w) * a + w * b) ≤
       (1 - w) * posteriorEntropyCurve a + w * posteriorEntropyCurve b := by
   exact convexOn_posteriorEntropyCurve.2 ha hb (sub_nonneg.mpr hw.2) hw.1 (by ring)
+
+end ScalarEntropy
+
+/-! ## Complete equality classification at coefficients zero and one
+
+单独完成 S=0 和 S=1 时的主定理及取等条件。
+-/
+
+public section Endpoints
+
+theorem S_eq_zero_iff_independent {s c d : ℝ} (hv : Valid s c d) :
+    S s c d = 0 ↔ Independent s c d := by
+  constructor
+  · intro hS
+    by_contra hi
+    have hn := nondegenerate_of_not_independent hv hi
+    have hcap := klCap_S hv hn 0 (show (0 : ℝ) ∈ Set.Icc (0 : ℝ) 1 by simp)
+    have hq0 : q c d 0 = c := by simp [q]
+    rw [hS, zero_mul, hq0] at hcap
+    have hD : D c (q c d s) = 0 := le_antisymm hcap (D_nonneg hv.2.1 hn.2)
+    have heq := (D_eq_zero_iff hv.2.1 hn.2).mp hD
+    have hmul : k c d * s = 0 := by unfold q at heq; linarith
+    have hk : k c d = 0 := (mul_eq_zero.mp hmul).resolve_right (ne_of_gt hn.1.1)
+    exact hi (Or.inr (Or.inr (by unfold k at hk; linarith)))
+  · exact S_eq_zero_of_independent
+
+theorem S_pos_iff_not_independent {s c d : ℝ} (hv : Valid s c d) :
+    0 < S s c d ↔ ¬Independent s c d := by
+  rw [lt_iff_le_and_ne]
+  constructor
+  · rintro ⟨_, hn⟩ hi
+    exact hn (S_eq_zero_of_independent hi).symm
+  · intro hi
+    exact ⟨S_nonneg hv, fun h => hi ((S_eq_zero_iff_independent hv).mp h.symm)⟩
+
+theorem sharp_equality_of_independent {s c d : ℝ} (hi : Independent s c d) :
+    J s c d = phi (S s c d) := by
+  rw [J_eq_zero_of_independent hi, S_eq_zero_of_independent hi, phi_zero]
+
+/-- Theorem 2.1, including equality, at contraction coefficient zero. -/
+theorem sharp_equality_of_S_zero {s c d : ℝ} (hv : Valid s c d) (hS : S s c d = 0) :
+    J s c d = phi (S s c d) ∧ Independent s c d := by
+  have hi := (S_eq_zero_iff_independent hv).mp hS
+  exact ⟨sharp_equality_of_independent hi, hi⟩
+
+/-- Theorem 2.1 at contraction coefficient one. -/
+theorem sharp_bound_of_S_one {s c d : ℝ} (hv : Valid s c d) (hS : S s c d = 1) :
+    J s c d ≤ phi (S s c d) := by
+  rw [hS, phi_one]
+  exact J_le_log_two hv
+
+/-- At coefficient one, equality forces the uniform noiseless/complementing source. -/
+theorem sharp_equality_iff_of_S_one {s c d : ℝ} (hv : Valid s c d) (hS : S s c d = 1) :
+    J s c d = phi (S s c d) ↔ s = 1 / 2 ∧ c = d ∧ (c = 0 ∨ c = 1) := by
+  rw [hS, phi_one]
+  exact J_eq_log_two_iff hv
+
+theorem S_noiseless {s : ℝ} (hs : s ∈ Set.Ioo (0 : ℝ) 1) : S s 0 0 = 1 := by
+  have hv : Valid s 0 0 := ⟨⟨hs.1.le, hs.2.le⟩, by simp, by simp⟩
+  have hn : Nondegenerate s 0 0 := by simpa [Nondegenerate, q, k] using And.intro hs hs
+  have hD : D 0 s ≠ 0 := ne_of_gt (D_pos (by simp) hs (ne_of_lt hs.1))
+  apply le_antisymm (S_le_one hv)
+  have h := ratio_le_S hv hn (show (0 : ℝ) ∈ Set.Icc (0 : ℝ) 1 by simp)
+    (ne_of_lt hs.1)
+  simpa [q, k, hD] using h
+
+theorem J_symmetric (c : ℝ) : J (1 / 2) c c = Real.log 2 - H c := by
+  have hq : q c c (1 / 2) = 1 / 2 := by unfold q k; ring
+  have hH : H (1 / 2) = Real.log 2 := Real.binEntropy_eq_log_two.mpr (by norm_num)
+  rw [J, hq, hH]
+  ring
+
+end Endpoints
 
 end BinaryPairBound
