@@ -15,8 +15,11 @@ those results.
 - `H` is mathlib's binary entropy in nats, with `H(0)=H(1)=0`.
 - `D(x,y) = -H(x)-x log(y)-(1-x)log(1-y)`.
   This is Bernoulli KL on `x ∈ [0,1]`, `y ∈ (0,1)`.
-  Its total real extension is not extended-real KL at deterministic reference
-  distributions. All relevant uses supply the required domain hypotheses.
+  At `y=0` or `y=1`, do not interpret this real-valued formula as KL:
+  for example, it gives `D(1,0)=0`, whereas the usual KL is infinite.
+  The positivity and data-processing lemmas in
+  [Divergence.lean](BinaryPairBound/Divergence.lean) require `y ∈ (0,1)`
+  for each reference parameter. `S` handles deterministic input or output separately.
 - `J(s,c,d) = H(q(s))-(1-s)H(c)-sH(d)`.
 - `S` is the supremum of `D(q(x),q(s))/D(x,s)` for `x ≠ s`, with the
   paper's zero convention for deterministic input or output. Its finiteness,
@@ -28,43 +31,95 @@ those results.
 
 ## Dependency graph
 
+Each box names one or more files in [`BinaryPairBound/`](BinaryPairBound/).
+An arrow `A → B` means that B uses results proved in A. These are selected
+proof dependencies; intermediate lemmas and other dependencies are omitted.
+
+### Assembling Theorem 2.1
+
 ```mermaid
 flowchart TD
-  A[Entropy and KL foundations] --> B[Equation 4.1 and exact cap characterization]
-  B --> C[Curvature and local coefficient]
-  C --> D[Diagonal extension and joint continuity]
-  D --> E[Compact cap maximizers]
-  C --> F[Distinct interior contacts]
-  D --> F
-  F --> G[Outer bitangent feasibility and uniqueness]
-  G --> H[Smooth feasible IFT family]
-  F --> H
-  A --> I[Both strict derivative signs]
-  F --> I
-  H --> J[Interior nonmerging maximizers excluded]
-  I --> J
-  D --> K[Exact boundary coefficient and continuous interior path]
-  H --> L[Strict boundary improvement]
-  I --> L
-  K --> L
-  D --> M[Interior cap saturation]
-  E --> N[Every normalized maximizer merges]
-  J --> N
-  L --> N
-  M --> J
-  O[Scalar entropy inequalities] --> P[Sharp merging bound and equality]
-  P --> Q[Theorem 2.1 and complete equality]
-  N --> Q
-  R[DSBS witnesses, endpoints, relabeling] --> Q
-  Q --> RV[Actual binary joint laws and arbitrary probability spaces]
-  FE[Finite density entropy and log-sum convexity] --> KL[Exact finite KL coefficient]
-  FE --> TP[Independent-product tensorization]
-  KL --> DP[Two-sided deterministic data processing]
-  Q --> DP
-  TP --> S10[Section 10: IID Boolean observations]
-  DP --> S10
-  RV --> DIR[Directed minimum bound and strictness]
+  OPT["Optimization.lean<br/>Maximizer existence"] --> ASM["Main.lean<br/>mainTheorem_of_maximizersMerge"]
+  MS["MergingSharp.lean<br/>Bound and equality at merging"] --> ASM
+  RED["Endpoints.lean<br/>Symmetry.lean<br/>Endpoints and relabeling"] --> ASM
+  INT["InteriorMaximizer.lean"] --> MM["MainProof.lean<br/>maximizersMerge"]
+  BD["BoundaryImprovement.lean"] --> MM
+  ASM --> THM["MainProof.lean<br/>mainTheorem"]
+  MM --> THM
 ```
+
+The last step in [MainProof.lean](BinaryPairBound/MainProof.lean) is exactly
+`mainTheorem := mainTheorem_of_maximizersMerge maximizersMerge`.
+The two inputs are the assembly theorem from
+[Main.lean](BinaryPairBound/Main.lean) and the proved maximizer reduction.
+In the diagram, the boundary arrow passes through
+`normalized_cap_maximizer_interior`; the interior arrow uses
+`interior_cap_maximizer_distinguishedInput`.
+
+### Proving the interior and boundary steps
+
+```mermaid
+flowchart TD
+  JC["JointRatioContinuity.lean"] --> CS["CapSaturation.lean"]
+  CG["ContactGeometry.lean"] --> CF["ContactFeasibility.lean"]
+  CF --> FAM["ContactFamily.lean"]
+  CE["ContactEndpoints.lean"] --> INT["InteriorMaximizer.lean"]
+  FAM --> INT
+  SIG["ContactSigns.lean"] --> INT
+  CS --> INT
+  BC["BoundaryCoefficient.lean"] --> CONT["BoundaryContinuation.lean"]
+  JC --> CONT
+  CONT --> BI["BoundaryImprovement.lean"]
+  FAM --> BI
+  SIG --> BI
+```
+
+[ContactFamily.lean](BinaryPairBound/ContactFamily.lean) supplies
+`exists_feasible_contact_family`;
+[ContactSigns.lean](BinaryPairBound/ContactSigns.lean) supplies the strict
+input- and output-direction derivative signs. Together with
+`interior_cap_maximizer_saturates`, they prove the interior result.
+The boundary branch proves `boundary_improvement_zero_right`.
+The boundary proof also reuses `exists_right_interior_contact` from
+[InteriorMaximizer.lean](BinaryPairBound/InteriorMaximizer.lean), not its final
+maximizer conclusion.
+
+Maximizer existence follows a separate path:
+[Contraction.lean](BinaryPairBound/Contraction.lean) →
+[Compactness.lean](BinaryPairBound/Compactness.lean) →
+[Optimization.lean](BinaryPairBound/Optimization.lean).
+It does not depend on `JointRatioContinuity.lean`.
+
+### Using Theorem 2.1 in the later results
+
+```mermaid
+flowchart TD
+  MAIN["MainProof.lean"] --> RV["RandomVariables.lean"]
+  MAIN --> DP["FiniteProcessing.lean"]
+  TP["FiniteTensorization.lean<br/>Contracts.power"] --> S10["Section10.lean<br/>iid_binary_bound"]
+  DP --> S10
+  S10 --> S10RV["Section10RandomVariables.lean"]
+  RV --> S10RV
+  MAIN --> DIR["ReverseChannel.lean"]
+  DIR --> DIRRV["RandomVariableDirections.lean"]
+  RV --> DIRRV
+```
+
+The arrows from `MainProof.lean` to `RandomVariables.lean` and
+`FiniteProcessing.lean` pass through
+[BinaryLaw.lean](BinaryPairBound/BinaryLaw.lean), which applies the scalar
+theorem to a binary joint law.
+[Section10.lean](BinaryPairBound/Section10.lean) combines
+`Contracts.power` with `processedLaw_bound_of_cap`.
+[ReverseChannel.lean](BinaryPairBound/ReverseChannel.lean) proves the
+bidirectional bound and its strictness; the random-variable versions are in
+[RandomVariableDirections.lean](BinaryPairBound/RandomVariableDirections.lean).
+
+The identification with the usual KL-ratio definition is a separate result:
+[FiniteKL.lean](BinaryPairBound/FiniteKL.lean) →
+[FiniteKLStandard.lean](BinaryPairBound/FiniteKLStandard.lean),
+ending with `coefficient_eq_standardKLCoefficient`.
+It is not a premise of the tensorization or data-processing proofs.
 
 ## Theorem 2.1 proof map
 
